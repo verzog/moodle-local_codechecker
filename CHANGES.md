@@ -1,3 +1,8 @@
+Changes in version 5.0.13 (20250916) - I depend upon you!
+-------------------------------------------------------
+- Bundled dependencies updated:
+  - Moodle CS v3.6.0
+
 Changes in version 5.0.12 (20250815) -  Git excludes thee
 -------------------------------------------------------
 - Fixed Bundled dependencies
