@@ -3,7 +3,7 @@
         'name' => 'moodlehq/local_codechecker',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '94c68a0aa5089bd7a579572916810e2c7239f2b5',
+        'reference' => '594a0eb3715cb290601f76f0ea67ffd83b35adc6',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'moodlehq/local_codechecker' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '94c68a0aa5089bd7a579572916810e2c7239f2b5',
+            'reference' => '594a0eb3715cb290601f76f0ea67ffd83b35adc6',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
