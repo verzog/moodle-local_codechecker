@@ -1,3 +1,10 @@
+Changes in version 5.1.0 (20251202) - No longer compatible
+-------------------------------------------------------
+- Bundled dependencies updated:
+  - Moodle CS v3.7.0
+- Bundled dependencies removed:
+  - PHPCompatibility
+
 Changes in version 5.0.13 (20250916) - I depend upon you!
 -------------------------------------------------------
 - Bundled dependencies updated:
