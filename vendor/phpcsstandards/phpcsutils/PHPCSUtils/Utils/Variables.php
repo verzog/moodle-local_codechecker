@@ -16,6 +16,7 @@ use PHPCSUtils\Exceptions\OutOfBoundsStackPtr;
 use PHPCSUtils\Exceptions\TypeError;
 use PHPCSUtils\Exceptions\UnexpectedTokenType;
 use PHPCSUtils\Exceptions\ValueError;
+use PHPCSUtils\Internal\AttributeHelper;
 use PHPCSUtils\Internal\Cache;
 use PHPCSUtils\Tokens\Collections;
 use PHPCSUtils\Utils\Scopes;
@@ -108,6 +109,7 @@ final class Variables
      *                 'is_static'       => boolean,       // TRUE if the static keyword was found.
      *                 'is_readonly'     => boolean,       // TRUE if the readonly keyword was found.
      *                 'is_final'        => boolean,       // TRUE if the final keyword was found.
+     *                 'is_abstract'     => boolean,       // TRUE if the abstract keyword was found.
      *                 'type'            => string,        // The type of the var (empty if no type specified).
      *                 'type_token'      => integer|false, // The stack pointer to the start of the type
      *                                                     // or FALSE if there is no type.
@@ -155,6 +157,7 @@ final class Variables
         $isStatic       = false;
         $isReadonly     = false;
         $isFinal        = false;
+        $isAbstract     = false;
 
         $startOfStatement = $phpcsFile->findPrevious(
             [
@@ -211,6 +214,9 @@ final class Variables
                 case \T_FINAL:
                     $isFinal = true;
                     break;
+                case \T_ABSTRACT:
+                    $isAbstract = true;
+                    break;
             }
         }
 
@@ -254,6 +260,7 @@ final class Variables
             'is_static'       => $isStatic,
             'is_readonly'     => $isReadonly,
             'is_final'        => $isFinal,
+            'is_abstract'     => $isAbstract,
             'type'            => $type,
             'type_token'      => $typeToken,
             'type_end_token'  => $typeEndToken,
@@ -262,6 +269,31 @@ final class Variables
 
         Cache::set($phpcsFile, __METHOD__, $stackPtr, $returnValue);
         return $returnValue;
+    }
+
+    /**
+     * Retrieve the stack pointers to the attribute openers for any attribute block which applies to an OO property
+     * or function declaration parameters.
+     *
+     * @since 1.2.0
+     *
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position in the stack of the variable token to
+     *                                               acquire the attributes for.
+     *
+     * @return array<int> Array with the stack pointers to the applicable attribute openers
+     *                    or an empty array if there are no attributes attached to the OO property
+     *                    or function declaration parameter.
+     *
+     * @throws \PHPCSUtils\Exceptions\TypeError           If the $stackPtr parameter is not an integer.
+     * @throws \PHPCSUtils\Exceptions\OutOfBoundsStackPtr If the token passed does not exist in the $phpcsFile.
+     * @throws \PHPCSUtils\Exceptions\UnexpectedTokenType If the token passed is not a `T_VARIABLE` token.
+     * @throws \PHPCSUtils\Exceptions\ValueError          If the token passed does not point to an OO property token
+     *                                                    or a parameter in a function declaration.
+     */
+    public static function getAttributeOpeners(File $phpcsFile, $stackPtr)
+    {
+        return AttributeHelper::getOpeners($phpcsFile, $stackPtr, 'variable');
     }
 
     /**

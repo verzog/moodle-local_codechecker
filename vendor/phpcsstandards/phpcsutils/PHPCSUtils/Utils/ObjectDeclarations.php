@@ -15,6 +15,7 @@ use PHP_CodeSniffer\Util\Tokens;
 use PHPCSUtils\Exceptions\OutOfBoundsStackPtr;
 use PHPCSUtils\Exceptions\TypeError;
 use PHPCSUtils\Exceptions\UnexpectedTokenType;
+use PHPCSUtils\Internal\AttributeHelper;
 use PHPCSUtils\Internal\Cache;
 use PHPCSUtils\Tokens\Collections;
 use PHPCSUtils\Utils\FunctionDeclarations;
@@ -376,6 +377,28 @@ final class ObjectDeclarations
     }
 
     /**
+     * Retrieve the stack pointers to the attribute openers for any attribute block which applies to the OO declaration.
+     *
+     * @since 1.2.0
+     *
+     * @param \PHP_CodeSniffer\Files\File $phpcsFile The file being scanned.
+     * @param int                         $stackPtr  The position in the stack of the OO token to
+     *                                               acquire the attributes for.
+     *
+     * @return array<int> Array with the stack pointers to the applicable attribute openers
+     *                    or an empty array if there are no attributes attached to the OO declaration.
+     *
+     * @throws \PHPCSUtils\Exceptions\TypeError           If the $stackPtr parameter is not an integer.
+     * @throws \PHPCSUtils\Exceptions\OutOfBoundsStackPtr If the token passed does not exist in the $phpcsFile.
+     * @throws \PHPCSUtils\Exceptions\UnexpectedTokenType If the token passed is not a `T_CLASS`, `T_ANON_CLASS`,
+     *                                                    `T_TRAIT`, `T_ENUM` or `T_INTERFACE` token.
+     */
+    public static function getAttributeOpeners(File $phpcsFile, $stackPtr)
+    {
+        return AttributeHelper::getOpeners($phpcsFile, $stackPtr, 'OO');
+    }
+
+    /**
      * Retrieve all constants declared in an OO structure.
      *
      * @since 1.1.0
@@ -440,7 +463,7 @@ final class ObjectDeclarations
      *   in the return value.
      *   However, keep in mind that passing the stack pointer of such a property to the
      *   {@see Variables::getMemberProperties()} method is not supported.
-     * - Interfaces and enums cannot contain properties. This method does not take this into
+     * - Interfaces (prior to PHP 8.4) and enums cannot contain properties. This method does not take this into
      *   account to allow sniffs to flag this kind of incorrect PHP code.
      *
      * @since 1.1.0

@@ -478,38 +478,24 @@ abstract class AbstractArrayDeclarationSniff implements Sniff
                 continue;
             }
 
-            // Handle FQN true/false/null.
-            if ($this->tokens[$i]['code'] === \T_NAME_FULLY_QUALIFIED) {
-                $compareReadyKeyword = \strtolower($this->tokens[$i]['content']);
-                if ($compareReadyKeyword === '\true'
-                    || $compareReadyKeyword === '\false'
-                    || $compareReadyKeyword === '\null'
-                ) {
-                    // FQN true/false/null on PHPCS 4.x. This can be handled.
-                    $content .= $this->tokens[$i]['content'];
-                    continue;
-                }
-            } elseif ($this->tokens[$i]['code'] === \T_NS_SEPARATOR) {
-                // PHPCS 3.x.
+            // Handle FQN true/false/null for PHPCS 3.x.
+            if ($this->tokens[$i]['code'] === \T_NS_SEPARATOR) {
                 $nextNonEmpty   = $phpcsFile->findNext(Tokens::$emptyTokens, ($i + 1), null, true);
                 $nextNonEmptyLC = \strtolower($this->tokens[$nextNonEmpty]['content']);
                 if ($nextNonEmpty !== false
-                    // PHPCS 3.x with PHP < 8.0.
                     && ($this->tokens[$nextNonEmpty]['code'] === \T_TRUE
                     || $this->tokens[$nextNonEmpty]['code'] === \T_FALSE
-                    || $this->tokens[$nextNonEmpty]['code'] === \T_NULL
-                    // PHPCS 3.x with PHP >= 8.0 where the namespaced name tokenization has been undone.
-                    || ($this->tokens[$nextNonEmpty]['code'] === \T_STRING
-                        && ($nextNonEmptyLC === 'true' || $nextNonEmptyLC === 'false' || $nextNonEmptyLC === 'null')))
+                    || $this->tokens[$nextNonEmpty]['code'] === \T_NULL)
                 ) {
-                    // FQN true/false/null on PHPCS 3.x. This can be handled.
                     $content .= $this->tokens[$nextNonEmpty]['content'];
                     $i        = $nextNonEmpty;
                     continue;
                 }
             }
 
-            if (isset($this->acceptedTokens[$this->tokens[$i]['code']]) === false) {
+            if (isset($this->acceptedTokens[$this->tokens[$i]['code']]) === false
+                || \T_UNSET_CAST === $this->tokens[$i]['code']
+            ) {
                 // This is not a key we can evaluate. Might be a variable or constant.
                 return;
             }
@@ -520,6 +506,40 @@ abstract class AbstractArrayDeclarationSniff implements Sniff
                 $content .= $number['content'];
                 $i        = $number['last_token'];
                 continue;
+            }
+
+            /*
+             * Make sure that when new/deprecated/removed casts are used in the code under scan and the sniff is run
+             * on a PHP version which doesn't support the cast, the eval() won't cause a deprecation notice,
+             * borking the scan of the file.
+             *
+             * - (unset) was deprecated in PHP 7.2 and removed in PHP 8.0;
+             * - (real) was deprecated in PHP 7.4 and removed in PHP 8.0;
+             * - (boolean) was deprecated in PHP 8.5 and will be removed in PHP 9.0;
+             * - (integer) was deprecated in PHP 8.5 and will be removed in PHP 9.0;
+             * - (double) was deprecated in PHP 8.5 and will be removed in PHP 9.0;
+             * - (string) was deprecated in PHP 8.5 and will be removed in PHP 9.0;
+             */
+            if (\T_DOUBLE_CAST === $this->tokens[$i]['code']) {
+                $content .= '(float)';
+                continue;
+            }
+
+            if (\PHP_VERSION_ID >= 80500) {
+                if (\T_INT_CAST === $this->tokens[$i]['code']) {
+                    $content .= '(int)';
+                    continue;
+                }
+
+                if (\T_BOOL_CAST === $this->tokens[$i]['code']) {
+                    $content .= '(bool)';
+                    continue;
+                }
+
+                if (\T_BINARY_CAST === $this->tokens[$i]['code']) {
+                    $content .= '(string)';
+                    continue;
+                }
             }
 
             // Account for heredoc with vars.
