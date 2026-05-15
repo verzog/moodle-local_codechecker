@@ -1,3 +1,12 @@
+Changes in version 5.2.0 (20260515) - G'day, 5.2
+-------------------------------------------------------
+- Confirmed compatibility with Moodle 5.1 and 5.2.
+- Added GitHub Actions CI coverage for Moodle 5.1 (MOODLE_501_STABLE,
+  PHP 8.2 to 8.4) and Moodle 5.2 (MOODLE_502_STABLE, PHP 8.3 to 8.4).
+- Added the Australia/Sydney timezone to the CI environment.
+- Bundled the Moodle CS v3.7.0 coding style rule sets
+  (https://github.com/moodlehq/moodle-cs).
+
 Changes in version 5.1.0 (20251202) - No longer compatible
 -------------------------------------------------------
 - Bundled dependencies updated:
