@@ -1,7 +1,7 @@
 Moodle Code Checker
 ===================
 
-[![Codechecker CI](https://github.com/moodlehq/moodle-local_codechecker/actions/workflows/ci.yml/badge.svg)](https://github.com/moodlehq/moodle-local_codechecker/actions/workflows/ci.yml)
+[![Codechecker CI](https://github.com/verzog/moodle-local_codechecker/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/verzog/moodle-local_codechecker/actions/workflows/ci.yml)
 
 Information
 -----------
