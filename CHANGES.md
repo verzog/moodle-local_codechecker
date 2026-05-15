@@ -1,6 +1,9 @@
 Changes in version 5.2.0 (20260515) - G'day, 5.2
 -------------------------------------------------------
 - Confirmed compatibility with Moodle 5.1 and 5.2.
+- Fixed the find_other_files test data provider keys (notmatches ->
+  nomatches) so the tests pass under PHPUnit 11 (Moodle 5.0+), which
+  maps associative data-provider keys to named parameters.
 - Reformatted the plugin's own source to pass the bundled Moodle CS
   v3.7.0 standard (phpcbf, formatting only - no behaviour change).
 - Added GitHub Actions CI coverage for Moodle 5.1 (MOODLE_501_STABLE,
