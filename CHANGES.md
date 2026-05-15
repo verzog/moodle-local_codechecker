@@ -1,3 +1,16 @@
+Changes in version 5.2.2 (20260515) - Mind the group
+-------------------------------------------------------
+- Submit the web check form to the explicit /local/codechecker/index.php
+  endpoint instead of the bare /local/codechecker/ directory URL. The
+  plugin already registers and loads the page as index.php, so posting
+  to the directory forced the web server to resolve the directory index
+  on a different, stricter-permission code path - returning a bare 403
+  Forbidden on "Check" (while the page itself loaded fine) whenever the
+  plugin directory was not traversable by the web server user. The form
+  now uses the same endpoint as the rest of the plugin, so it no longer
+  depends on server-side directory permissions.
+- Documented the related file-permission guidance in the README.
+
 Changes in version 5.2.1 (20260515) - Forbidden no more
 -------------------------------------------------------
 - Process the web check submission in-place instead of doing a

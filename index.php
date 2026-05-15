@@ -42,7 +42,13 @@ admin_externalpage_setup('local_codechecker');
 raise_memory_limit(MEMORY_HUGE);
 set_time_limit(600);
 
-$mform = new local_codechecker_form(new moodle_url('/local/codechecker/'));
+// Submit to the explicit index.php endpoint (the same URL the admin menu
+// and page registration use), not the bare directory. Posting to the
+// directory would force the web server to resolve the directory index
+// itself - a different path with stricter permission requirements that
+// returns a 403 on submit if the plugin dir is not traversable by the
+// web server user, even though the page itself loads fine.
+$mform = new local_codechecker_form(new moodle_url('/local/codechecker/index.php'));
 
 if ($data = $mform->get_data()) {
     // Handle the submission in-place instead of doing a Post/Redirect/Get.
