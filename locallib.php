@@ -54,7 +54,13 @@ class local_codechecker_form extends moodleform {
             'https://moodledev.io/general/development/policies/codingstyle',
             get_string('moodlecodingguidelines', 'local_codechecker')
         );
-        $a->path = html_writer::tag('tt', 'local/codechecker');
+        $a->path = html_writer::alist([
+            html_writer::tag('tt', 'local/codechecker') . ' - a plugin',
+            html_writer::tag('tt', 'lib/editor/tiny/plugins/bootstrap') .
+                ' - a subplugin (here the <tt>tiny_bootstrap</tt> TinyMCE editor plugin)',
+            html_writer::tag('tt', 'mod/forum') . ' - an activity module',
+            html_writer::tag('tt', 'local/codechecker/locallib.php') . ' - a single file',
+        ]);
         $a->excludeexample = html_writer::tag('tt', 'db, backup/*1, *lib*');
         $mform->addElement('static', '', '', get_string('info', 'local_codechecker', $a));
 

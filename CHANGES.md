@@ -1,3 +1,10 @@
+Changes in version 5.2.3 (20260515) - Worked examples
+-------------------------------------------------------
+- Expanded the on-screen path help with worked examples covering a
+  plugin, a subplugin (e.g. the tiny_bootstrap TinyMCE editor plugin),
+  an activity module and a single file, and clarified that a component
+  name maps to its directory.
+
 Changes in version 5.2.2 (20260515) - Mind the group
 -------------------------------------------------------
 - Submit the web check form to the explicit /local/codechecker/index.php
