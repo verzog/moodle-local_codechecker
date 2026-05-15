@@ -1,3 +1,24 @@
+Changes in version 5.2.0 (20260515) - G'day, 5.2
+-------------------------------------------------------
+- Confirmed compatibility with Moodle 5.1 and 5.2.
+- Fixed the find_other_files test data provider keys (notmatches ->
+  nomatches) so the tests pass under PHPUnit 11 (Moodle 5.0+), which
+  maps associative data-provider keys to named parameters.
+- Reformatted the plugin's own source to pass the bundled Moodle CS
+  v3.7.0 standard (phpcbf, formatting only - no behaviour change).
+- Added GitHub Actions CI coverage for Moodle 5.1 (MOODLE_501_STABLE,
+  PHP 8.2 to 8.4) and Moodle 5.2 (MOODLE_502_STABLE, PHP 8.3 to 8.4).
+- Fixed thirdpartylibs.xml: removed the stale PHPCompatibility entry (the
+  library was unbundled in 5.1.0) that broke the grunt ignorefiles task,
+  and synced the remaining versions with composer.lock.
+- Bumped the CI PostgreSQL service to 16, required by Moodle 5.2 and main.
+- Raised the CI main-branch jobs to PHP 8.3 (Moodle main now requires
+  PHP 8.3.0 and no longer composer-installs on 8.2).
+- Removed CI testing for Moodle versions before 4.5 (4.1 to 4.4).
+- Added the Australia/Sydney timezone to the CI environment.
+- Bundled the Moodle CS v3.7.0 coding style rule sets
+  (https://github.com/moodlehq/moodle-cs).
+
 Changes in version 5.1.0 (20251202) - No longer compatible
 -------------------------------------------------------
 - Bundled dependencies updated:

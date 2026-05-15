@@ -25,7 +25,6 @@ namespace local_codechecker;
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class locallib_test extends \basic_testcase {
-
     /**
      * Data provider for test_local_codechecker_find_other_files()
      */
@@ -37,28 +36,28 @@ final class locallib_test extends \basic_testcase {
                 'ignores' => [],
                 'extensions' => $defaultextensions,
                 'matches' => [\moodle_exception::class],
-                'notmatches' => [],
+                'nomatches' => [],
             ],
             'one wrong dir' => [
                 'path' => 'local/codechecker/nononotests/',
                 'ignores' => [],
                 'extensions' => $defaultextensions,
                 'matches' => [\moodle_exception::class],
-                'notmatches' => [],
+                'nomatches' => [],
             ],
             'one file' => [
                 'path' => 'local/codechecker/tests/locallib_test.php',
                 'ignores' => [],
                 'extensions' => $defaultextensions,
                 'matches' => [],
-                'notmatches' => [],
+                'nomatches' => [],
             ],
             'one php file' => [
                 'path' => 'local/codechecker/tests/locallib_test.php',
                 'ignores' => [],
                 'extensions' => ['php'],
                 'matches' => ['local/codechecker/tests/locallib_test.php'],
-                'notmatches' => [],
+                'nomatches' => [],
             ],
             'one dir' => [
                 'path' => 'local/codechecker/tests',
@@ -110,8 +109,13 @@ final class locallib_test extends \basic_testcase {
      * @dataProvider local_codechecker_find_other_files_provider
      * @covers ::local_codechecker_find_other_files
      */
-    public function test_local_codechecker_find_other_files(string $path, array $ignores,
-            array $extensions, array $matches, array $nomatches): void {
+    public function test_local_codechecker_find_other_files(
+        string $path,
+        array $ignores,
+        array $extensions,
+        array $matches,
+        array $nomatches
+    ): void {
 
         global $CFG;
         require_once(__DIR__ . '/../locallib.php');
