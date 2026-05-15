@@ -1,3 +1,14 @@
+Changes in version 5.2.1 (20260515) - Forbidden no more
+-------------------------------------------------------
+- Process the web check submission in-place instead of doing a
+  Post/Redirect/Get. The PRG redirect placed the filesystem path in the
+  URL query string, which nginx LFI/path-traversal WAF rules (e.g.
+  YunoHost defaults) reject with a 403 before the request reaches
+  Moodle. The path now stays in the POST body; a GET fallback is kept
+  for direct links.
+- Pointed the README CI badge at this repository instead of the
+  upstream moodlehq one, so forks show their own pipeline status.
+
 Changes in version 5.2.0 (20260515) - G'day, 5.2
 -------------------------------------------------------
 - Confirmed compatibility with Moodle 5.1 and 5.2.
