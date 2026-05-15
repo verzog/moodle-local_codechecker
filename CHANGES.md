@@ -1,6 +1,8 @@
 Changes in version 5.2.0 (20260515) - G'day, 5.2
 -------------------------------------------------------
 - Confirmed compatibility with Moodle 5.1 and 5.2.
+- Reformatted the plugin's own source to pass the bundled Moodle CS
+  v3.7.0 standard (phpcbf, formatting only - no behaviour change).
 - Added GitHub Actions CI coverage for Moodle 5.1 (MOODLE_501_STABLE,
   PHP 8.2 to 8.4) and Moodle 5.2 (MOODLE_502_STABLE, PHP 8.3 to 8.4).
 - Fixed thirdpartylibs.xml: removed the stale PHPCompatibility entry (the
