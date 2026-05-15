@@ -6,6 +6,7 @@ Changes in version 5.2.0 (20260515) - G'day, 5.2
 - Fixed thirdpartylibs.xml: removed the stale PHPCompatibility entry (the
   library was unbundled in 5.1.0) that broke the grunt ignorefiles task,
   and synced the remaining versions with composer.lock.
+- Bumped the CI PostgreSQL service to 16, required by Moodle 5.2 and main.
 - Raised the CI main-branch jobs to PHP 8.3 (Moodle main now requires
   PHP 8.3.0 and no longer composer-installs on 8.2).
 - Removed CI testing for Moodle versions before 4.5 (4.1 to 4.4).
