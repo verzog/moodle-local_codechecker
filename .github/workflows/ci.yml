@@ -53,10 +53,10 @@ jobs:
 
 
           # Lowest php versions supported by each branch (with main always being tested twice).
-          - php: 8.2
+          - php: 8.3
             moodle-branch: main
             database: pgsql
-          - php: 8.2
+          - php: 8.3
             moodle-branch: main
             database: mariadb
           - php: 8.3
