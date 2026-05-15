@@ -28,6 +28,11 @@ Changes in version 5.2.1 (20260515) - Forbidden no more
   for direct links.
 - Pointed the README CI badge at this repository instead of the
   upstream moodlehq one, so forks show their own pipeline status.
+- Note: the WAF/query-string explanation above was the initial
+  diagnosis. The 403 was later traced to the form posting to the bare
+  directory URL on a stricter web-server permission path; the
+  definitive fix is in 5.2.2. This change is retained as a sensible
+  improvement but was not the actual cure.
 
 Changes in version 5.2.0 (20260515) - G'day, 5.2
 -------------------------------------------------------
