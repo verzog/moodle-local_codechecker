@@ -34,6 +34,18 @@ should see a new option in the settings block:
 
 > Site administration -> Development -> Code checker
 
+Web server file permissions
+---------------------------
+
+The form submits to ``/local/codechecker/index.php`` so the request is
+always handled by PHP directly, matching how the page itself is served.
+If you still see a bare ``403 Forbidden`` only when pressing "Check"
+(while the form page loads fine), check that the ``codechecker``
+directory is readable and traversable by your web server user or group,
+matching the rest of your Moodle tree. This can happen when the plugin
+is deployed as a non-web account (for example ``rsync`` or ``git pull``
+run as a deploy user).
+
 We hope you find this tool useful. Feel free to enhance it! Also, you can report any idea or bug using GitHub's issues and pull requests, thanks!
 
 
