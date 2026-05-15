@@ -1,3 +1,10 @@
+Changes in version 5.2.3 (20260515) - Worked examples
+-------------------------------------------------------
+- Expanded the on-screen path help with worked examples covering a
+  plugin, a subplugin (e.g. the tiny_bootstrap TinyMCE editor plugin),
+  an activity module and a single file, and clarified that a component
+  name maps to its directory.
+
 Changes in version 5.2.2 (20260515) - Mind the group
 -------------------------------------------------------
 - Submit the web check form to the explicit /local/codechecker/index.php
@@ -21,6 +28,11 @@ Changes in version 5.2.1 (20260515) - Forbidden no more
   for direct links.
 - Pointed the README CI badge at this repository instead of the
   upstream moodlehq one, so forks show their own pipeline status.
+- Note: the WAF/query-string explanation above was the initial
+  diagnosis. The 403 was later traced to the form posting to the bare
+  directory URL on a stricter web-server permission path; the
+  definitive fix is in 5.2.2. This change is retained as a sensible
+  improvement but was not the actual cure.
 
 Changes in version 5.2.0 (20260515) - G'day, 5.2
 -------------------------------------------------------
