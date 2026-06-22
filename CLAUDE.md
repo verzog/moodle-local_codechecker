@@ -1,4 +1,4 @@
-# CLAUDE.md — Moodle Plugin Development
+# CLAUDE.md — Moodle Plugin Development - Included for reference
 
 Guidance for Claude when developing Moodle plugins for Australian deployments.
 These rules are drawn from real mistakes and CI failures across the
