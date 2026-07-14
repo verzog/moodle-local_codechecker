@@ -12,21 +12,29 @@ It uses the [Moodle Coding Style](https://github.com/moodlehq/moodle-cs) 'sniffs
 [PHPCompatibility](https://github.com/PHPCompatibility/PHPCompatibility) ones.
 
 It was created by developers at the Open University, including Sam Marshall,
-Tim Hunt and Jenny Gray. It is now maintained by Moodle HQ.
+Tim Hunt and Jenny Gray. Upstream is maintained by Moodle HQ; this fork
+carries additional fixes on top of it.
 
-Available releases can be downloaded and installed from
+Requirements and compatibility
+------------------------------
+
+This fork requires Moodle 5.0 or later (PHP 8.2+). It is tested by CI
+against Moodle 5.0, 5.1 and 5.2 stable branches, and against `main`
+(currently 5.3dev), on PHP 8.2 to 8.4.
+
+Upstream releases can be downloaded and installed from
 <https://moodle.org/plugins/view.php?plugin=local_codechecker>.
 
-To install it using git, type this command in the root of your Moodle install:
+To install this fork using git, type this command in the root of your Moodle install:
 
-    git clone https://github.com/moodlehq/moodle-local_codechecker.git local/codechecker
+    git clone https://github.com/verzog/moodle-local_codechecker.git local/codechecker
 
 Then add /local/codechecker to your git ignore.
 
 Additionally, remember to only use the version of PHPCS located in ``phpcs/bin/phpcs`` rather than installing PHPCS directly. Add the location of the PHPCS executable to your system path, tell PHPCS about the Moodle coding standard with ``phpcs --config-set installed_paths /path/to/moodle-local_codechecker``  and set the default coding standard to Moodle with ``phpcs --config-set default_standard moodle``.  You can now test a file (or folder) with: ``phpcs /path/to/file.php``.
 
 Alternatively, download the zip from
-<https://github.com/moodlehq/moodle-local_codechecker/zipball/main>,
+<https://github.com/verzog/moodle-local_codechecker/zipball/main>,
 unzip it into the local folder, and then rename the new folder to "codechecker".
 
 After you have installed this local plugin, you

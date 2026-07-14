@@ -124,7 +124,9 @@ if ($pathlist) {
         $xml = simplexml_load_file($reportfile);
 
         // Look for other problems, not handled by codesniffer. Use same list of ignored (originally in keys, now in values).
-        local_codechecker_check_other_files(local_codechecker_clean_path($fullpath), $xml, array_keys($ignores));
+        foreach ($fullpaths as $checkpath) {
+            local_codechecker_check_other_files($checkpath, $xml, array_keys($ignores));
+        }
         [$numerrors, $numwarnings] = local_codechecker_count_problems($xml);
 
         // Output the results report.

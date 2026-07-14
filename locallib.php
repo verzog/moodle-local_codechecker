@@ -57,7 +57,7 @@ class local_codechecker_form extends moodleform {
         $a->path = html_writer::alist([
             html_writer::tag('tt', 'local/codechecker') . ' - a plugin',
             html_writer::tag('tt', 'lib/editor/tiny/plugins/bootstrap') .
-                ' - a subplugin (here the <tt>tiny_bootstrap</tt> TinyMCE editor plugin)',
+                ' - a subplugin (here the ' . html_writer::tag('tt', 'tiny_bootstrap') . ' TinyMCE editor plugin)',
             html_writer::tag('tt', 'mod/forum') . ' - an activity module',
             html_writer::tag('tt', 'local/codechecker/locallib.php') . ' - a single file',
         ]);
