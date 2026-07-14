@@ -1,3 +1,18 @@
+Changes in version 5.2.5 (20260714) - Licence to skip
+-------------------------------------------------------
+- Added a "Skip Moodle licence and boilerplate checks" option to the web
+  form (and --skiplicence / -l on the CLI runner). When enabled, the run
+  excludes exactly two sniffs - moodle.Files.BoilerplateComment and
+  moodle.Commenting.FileExpectedTags - so proprietary or third-party
+  code that intentionally carries its own file headers (e.g. a
+  "Proprietary - see LICENSE.txt" @license tag instead of the Moodle
+  GPL one) is no longer drowned in a licence error per file, while
+  every other coding-style check still applies.
+- The per-file "Re-check just this file" links now carry the submitted
+  form options (include warnings, display standard, skip licence
+  checks), so a recheck runs with the same settings instead of the
+  defaults.
+
 Changes in version 5.2.4 (20260714) - Modern history
 -------------------------------------------------------
 - Declared explicit support for Moodle 5.2 and 5.3dev (main): CI now

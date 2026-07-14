@@ -25,6 +25,9 @@ class local_codechecker_renderer extends plugin_renderer_base {
     /** @var bool show phpsc standard flag. */
     private $showstandard;
 
+    /** @var array options to carry on the per-file recheck links. */
+    private $recheckoptions = [];
+
     /** @var array string replaces used to clean up the input line for display. */
     protected $replaces = [
         "\t" => '<span>&#x25b6;</span>',
@@ -113,10 +116,12 @@ class local_codechecker_renderer extends plugin_renderer_base {
      * @param int $numerrors total number of error-level violations in the run.
      * @param int $numwarnings total number of warning-level violations in the run.
      * @param bool $showstandard Show phpcs standard associated with problem.
+     * @param array $recheckoptions form options to carry on the per-file recheck links.
      * @return string the report html
      */
-    public function report(SimpleXMLElement $xml, $numerrors, $numwarnings, $showstandard = false) {
+    public function report(SimpleXMLElement $xml, $numerrors, $numwarnings, $showstandard = false, array $recheckoptions = []) {
         $this->showstandard = $showstandard;
+        $this->recheckoptions = $recheckoptions;
 
         $grandsummary = '';
         $grandtype = '';
@@ -197,7 +202,7 @@ class local_codechecker_renderer extends plugin_renderer_base {
             ['class' => 'resultfile', 'id' => 'file' . $fileindex]
         );
         $output .= html_writer::tag('h3', html_writer::link(
-            new moodle_url('/local/codechecker/index.php', ['path' => $prettypath]),
+            new moodle_url('/local/codechecker/index.php', ['path' => $prettypath] + $this->recheckoptions),
             s($prettypath),
             ['title' => get_string('recheckfile', 'local_codechecker')]
         ));

@@ -37,10 +37,11 @@ if (!autoload_tools()) {
 
 // Get the command-line options.
 [$options, $unrecognized] = cli_get_params(
-    ['help' => false, 'interactive' => false, 'exclude' => ''],
+    ['help' => false, 'interactive' => false, 'exclude' => '', 'skiplicence' => false],
     ['h' => 'help',
     'i' => 'interactive',
     'e' => 'exclude',
+    'l' => 'skiplicence',
     ]
 );
 
@@ -67,6 +68,9 @@ $runner = new \local_codechecker\runner();
 $runner->set_verbosity(1);
 $runner->set_interactive($interactive);
 $runner->set_ignorepatterns(local_codesniffer_get_ignores($options['exclude']));
+if ($options['skiplicence']) {
+    $runner->set_excludedsniffs(local_codechecker_licence_sniffs());
+}
 
 $fullpath = local_codechecker_clean_path($CFG->dirroot . '/' . trim($path, '/'));
 $runner->set_files([$fullpath]);

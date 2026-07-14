@@ -59,6 +59,7 @@ if ($data = $mform->get_data()) {
     $exclude = $data->exclude;
     $includewarnings = !empty($data->includewarnings);
     $showstandard = !empty($data->showstandard);
+    $skiplicencechecks = !empty($data->skiplicencechecks);
 } else {
     // Backwards compatibility for direct GET links. These may still be
     // blocked by the same WAF rules when the path is present in the query.
@@ -66,6 +67,7 @@ if ($data = $mform->get_data()) {
     $exclude = optional_param('exclude', '', PARAM_NOTAGS);
     $includewarnings = optional_param('includewarnings', true, PARAM_BOOL);
     $showstandard = optional_param('showstandard', false, PARAM_BOOL);
+    $skiplicencechecks = optional_param('skiplicencechecks', false, PARAM_BOOL);
 }
 
 $mform->set_data((object)[
@@ -73,6 +75,7 @@ $mform->set_data((object)[
     'exclude' => $exclude,
     'includewarnings' => $includewarnings,
     'showstandard' => $showstandard,
+    'skiplicencechecks' => $skiplicencechecks,
 ]);
 
 $output = $PAGE->get_renderer('local_codechecker');
@@ -116,6 +119,9 @@ if ($pathlist) {
         $runner->set_reportfile($reportfile);
         $runner->set_includewarnings($includewarnings);
         $runner->set_ignorepatterns($ignores);
+        if ($skiplicencechecks) {
+            $runner->set_excludedsniffs(local_codechecker_licence_sniffs());
+        }
         $runner->set_files($fullpaths);
 
         $runner->run();
@@ -129,8 +135,13 @@ if ($pathlist) {
         }
         [$numerrors, $numwarnings] = local_codechecker_count_problems($xml);
 
-        // Output the results report.
-        echo $output->report($xml, $numerrors, $numwarnings, $showstandard);
+        // Output the results report. The recheck options are carried on the
+        // per-file recheck links so a recheck keeps the same settings.
+        echo $output->report($xml, $numerrors, $numwarnings, $showstandard, [
+            'includewarnings' => (int) $includewarnings,
+            'showstandard' => (int) $showstandard,
+            'skiplicencechecks' => (int) $skiplicencechecks,
+        ]);
 
         // And clean the report temp file.
         @unlink($reportfile);

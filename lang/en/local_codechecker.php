@@ -31,6 +31,8 @@ Options:
                     file or to repeat the check against the same one.
   --exclude, -e     Exclude files with a comma separated list of substr matching paths,
                     Asterisks are allowed as wildchars at any place.
+  --skiplicence, -l Skip the Moodle GPL boilerplate and licence/copyright tag checks,
+                    for proprietary or third-party code with its own headers.
   --help, -h        Shows this information
 Example:
   php run.php local/codechecker';
@@ -44,7 +46,8 @@ $string['info'] = '<p>Checks code against some aspects of the {$a->link}.</p>
 {$a->path}
 <p>You can enter either a specific PHP file, or a folder to check all the files it contains.
 Multiple entries are supported (files or folders), one per line.</p>
-<p>To exclude files, a comma separated list of substr matching paths can be used, for example: {$a->excludeexample}. Asterisks are allowed as wildchars at any place.</p>';
+<p>To exclude files, a comma separated list of substr matching paths can be used, for example: {$a->excludeexample}. Asterisks are allowed as wildchars at any place.</p>
+<p>When checking proprietary or third-party code that intentionally carries its own file headers instead of the Moodle GPL ones, tick "Skip Moodle licence and boilerplate checks" so only the genuine coding-style problems are reported.</p>';
 $string['invalidpath'] = 'Invalid path {$a}';
 $string['moodlecodingguidelines'] = 'Moodle coding guidelines';
 $string['numerrorswarnings'] = '{$a->errors} error(s) and {$a->warnings} warning(s)';
@@ -60,6 +63,7 @@ $string['pluginname'] = 'Code checker';
 $string['privacy:metadata'] = 'The Code checker plugin does not store any personal data.';
 $string['recheckfile'] = 'Re-check just this file';
 $string['showstandard'] = 'Display phpcs standard associated with a problem';
+$string['skiplicencechecks'] = 'Skip Moodle licence and boilerplate checks';
 $string['success'] = 'Well done!';
 $string['summary'] = 'Total: {$a}';
 $string['wholefile'] = 'File';
