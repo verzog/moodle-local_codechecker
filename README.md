@@ -54,6 +54,18 @@ matching the rest of your Moodle tree. This can happen when the plugin
 is deployed as a non-web account (for example ``rsync`` or ``git pull``
 run as a deploy user).
 
+Checking proprietary or third-party code
+----------------------------------------
+
+The Moodle standard requires every file to start with the Moodle GPL
+boilerplate and carry matching ``@copyright`` / ``@license`` tags.
+Code that ships under different terms (for example a plugin whose files
+declare ``@license Proprietary``) fails those two checks on every file,
+which drowns out the genuine style problems. Tick **Skip Moodle licence
+and boilerplate checks** on the check form (or pass ``--skiplicence`` to
+``run.php``) to exclude just those sniffs for a run; all other checks
+still apply.
+
 We hope you find this tool useful. Feel free to enhance it! Also, you can report any idea or bug using GitHub's issues and pull requests, thanks!
 
 

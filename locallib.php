@@ -79,8 +79,28 @@ class local_codechecker_form extends moodleform {
         $mform->setType('showstandard', PARAM_BOOL);
         $mform->setDefault('showstandard', false);
 
+        $mform->addElement('advcheckbox', 'skiplicencechecks', get_string('skiplicencechecks', 'local_codechecker'));
+        $mform->setType('skiplicencechecks', PARAM_BOOL);
+        $mform->setDefault('skiplicencechecks', false);
+
         $mform->addElement('submit', 'submitbutton', get_string('check', 'local_codechecker'));
     }
+}
+
+/**
+ * Sniffs that enforce the Moodle GPL boilerplate comment and the
+ * @copyright / @license file tags. Proprietary or third-party code
+ * intentionally carries different headers, so these can be excluded
+ * from a run via the "Skip Moodle licence and boilerplate checks"
+ * option without weakening any other check.
+ *
+ * @return string[] array of sniff codes.
+ */
+function local_codechecker_licence_sniffs(): array {
+    return [
+        'moodle.Files.BoilerplateComment',
+        'moodle.Commenting.FileExpectedTags',
+    ];
 }
 
 /**

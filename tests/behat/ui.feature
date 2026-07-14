@@ -75,6 +75,18 @@ Feature: Codechecker UI works as expected
     Then I should see "index.php"
     And I should see "version.php"
 
+  Scenario: Skip Moodle licence and boilerplate checks for proprietary code
+    Given I log in as "admin"
+    And I navigate to "Development > Code checker" in site administration
+    And I set the field "Path(s) to check" to "local/codechecker/tests/fixtures/behat/problem.php"
+    And I set the field "Display phpcs standard associated with a problem" to "1"
+    And I set the field "Skip Moodle licence and boilerplate checks" to "1"
+    When I press "Check code"
+    Then I should not see "moodle.Files.BoilerplateComment"
+    And I should not see "moodle.Commenting.FileExpectedTags"
+    And I should see "moodle.Commenting.InlineComment"
+    And I log out
+
   Scenario: Optionally output PHPCS standard
     Given I log in as "admin"
     And I navigate to "Development > Code checker" in site administration

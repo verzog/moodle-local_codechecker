@@ -98,6 +98,15 @@ class runner extends \PHP_CodeSniffer\Runner {
     }
 
     /**
+     * Set the sniffs to be completely excluded from the run.
+     *
+     * @param string[] $sniffs array of sniff codes (Standard.Category.Sniff) to exclude.
+     */
+    public function set_excludedsniffs(array $sniffs): void {
+        $this->config->exclude = $sniffs;
+    }
+
+    /**
      * Set if the interactive checking mode should be enabled or not.
      *
      * @param bool $interactive If true, will stop after each file with errors and wait for user input.
