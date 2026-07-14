@@ -197,7 +197,7 @@ class local_codechecker_renderer extends plugin_renderer_base {
             ['class' => 'resultfile', 'id' => 'file' . $fileindex]
         );
         $output .= html_writer::tag('h3', html_writer::link(
-            new moodle_url('/local/codechecker/', ['path' => $prettypath]),
+            new moodle_url('/local/codechecker/index.php', ['path' => $prettypath]),
             s($prettypath),
             ['title' => get_string('recheckfile', 'local_codechecker')]
         ));

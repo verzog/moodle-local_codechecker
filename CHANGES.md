@@ -1,3 +1,31 @@
+Changes in version 5.2.4 (20260714) - Modern history
+-------------------------------------------------------
+- Declared explicit support for Moodle 5.2 and 5.3dev (main): CI now
+  tests main (5.3dev until the MOODLE_503_STABLE cut) on PHP 8.3/8.4
+  against both PostgreSQL and MariaDB, and Moodle 5.2 on PHP 8.3/8.4.
+  Raised the plugin requires floor to Moodle 5.0 (PHP 8.2), matching
+  what is actually tested. No $plugin->supported cap is set because CI
+  tests main.
+- Fixed the "Re-check just this file" links in the results report to
+  point at the explicit /local/codechecker/index.php endpoint instead
+  of the bare directory URL, matching the 5.2.2 form-action fix. Note
+  these links still carry the path in the query string, so a strict
+  LFI-filtering WAF may block them; the main check form is unaffected.
+- Fixed the non-PHP file checks (line length, tabs, CRLF in
+  txt/html/csv files) to run on every submitted path. Previously, when
+  multiple paths were entered, only the last one received these checks
+  (long-standing upstream issue).
+- CI hardening: moved to the ubuntu-24.04 runner (22.04 is retired and
+  failed every job before install), removed the retired pre-5.0 matrix
+  rows (Moodle 4.5/PHP 8.1), deduplicated the main-branch jobs, pinned
+  the database service images (postgres:16.6, mariadb:10.11), wrapped
+  composer create-project and moodle-plugin-ci install in 3-attempt
+  retries with the later steps gated on a successful install, and gave
+  Behat --auto-rerun 3 to absorb flaky failures.
+- Documented the fork's requirements and compatibility in the README
+  and pointed the install instructions at this repository, matching
+  the CI badge.
+
 Changes in version 5.2.3 (20260515) - Worked examples
 -------------------------------------------------------
 - Expanded the on-screen path help with worked examples covering a
