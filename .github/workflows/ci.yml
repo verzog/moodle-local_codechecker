@@ -11,7 +11,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16.6
+        image: ${{ matrix.postgres_image || 'postgres:16.6' }}
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -19,26 +19,50 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
       mariadb:
-        image: mariadb:10.11
+        image: ${{ matrix.mariadb_image || 'mariadb:10.11' }}
         env:
           MYSQL_USER: 'root'
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
+        options: --health-cmd="mariadb-admin ping" --health-interval 10s --health-timeout 5s --health-retries 3
 
     strategy:
       fail-fast: false
       matrix:
         include:
           # Highest php version supported by each branch, with main
-          # (5.3dev until the MOODLE_503_STABLE cut) tested on both DBs.
+          # (5.3dev until the MOODLE_503_STABLE cut, ~5 Oct 2026) tested
+          # on both DBs. Moodle 5.3 raised the database floors (PostgreSQL
+          # 17, MariaDB 11.4), so the main rows override the pinned service
+          # images below; the 5.0-5.2 stable branches keep postgres:16.6 /
+          # mariadb:10.11 via the defaults.
           - php: 8.4
             moodle-branch: main
             database: pgsql
+            postgres_image: postgres:17
+            mariadb_image: mariadb:11.4
           - php: 8.4
             moodle-branch: main
             database: mariadb
+            postgres_image: postgres:17
+            mariadb_image: mariadb:11.4
+
+          # Moodle 5.3 LTS stable branch. Held back because MOODLE_503_STABLE
+          # is not cut until the 5.3 release (~5 Oct 2026); enabling it before
+          # then would fail every 5.3 job (branch does not exist). Until the
+          # cut, the `main` rows above ARE Moodle 5.3. Uncomment on release day
+          # (5.3 supports PHP 8.3-8.4, pgsql + mariadb, on the 5.3 DB floors).
+          # - php: 8.4
+          #   moodle-branch: MOODLE_503_STABLE
+          #   database: pgsql
+          #   postgres_image: postgres:17
+          #   mariadb_image: mariadb:11.4
+          # - php: 8.3
+          #   moodle-branch: MOODLE_503_STABLE
+          #   database: mariadb
+          #   postgres_image: postgres:17
+          #   mariadb_image: mariadb:11.4
           - php: 8.4
             moodle-branch: MOODLE_502_STABLE
             database: pgsql
@@ -53,6 +77,8 @@ jobs:
           - php: 8.3
             moodle-branch: main
             database: pgsql
+            postgres_image: postgres:17
+            mariadb_image: mariadb:11.4
           - php: 8.3
             moodle-branch: MOODLE_502_STABLE
             database: pgsql

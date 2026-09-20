@@ -18,9 +18,12 @@ carries additional fixes on top of it.
 Requirements and compatibility
 ------------------------------
 
-This fork requires Moodle 5.0 or later (PHP 8.2+). It is tested by CI
-against Moodle 5.0, 5.1 and 5.2 stable branches, and against `main`
-(currently 5.3dev), on PHP 8.2 to 8.4.
+This fork requires Moodle 5.0 or later. The PHP floor follows upstream:
+PHP 8.2+ on Moodle 5.0 and 5.1, and PHP 8.3+ on Moodle 5.2 and the
+upcoming 5.3 LTS. It is tested by CI against the Moodle 5.0, 5.1 and 5.2
+stable branches, and against `main` — which is Moodle 5.3dev until the
+`MOODLE_503_STABLE` branch is cut at the 5.3 LTS release (~5 October
+2026) — across PHP 8.2 to 8.4.
 
 Upstream releases can be downloaded and installed from
 <https://moodle.org/plugins/view.php?plugin=local_codechecker>.
