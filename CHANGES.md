@@ -9,7 +9,8 @@ Changes in version 5.2.7 (20260920) - Sniffer security bump
   is updated so the vendored code matches the fixed release and the
   Dependabot alert clears. Both composer.lock and the committed
   vendor/ tree were regenerated (superseding the lockfile-only
-  Dependabot PR #9, which left the vendored code on 3.13.5).
+  Dependabot PR #9, which left the vendored code on 3.13.5), and
+  thirdpartylibs.xml now declares the matching 3.13.6 version.
 
 Changes in version 5.2.6 (20260920) - Ready for 5.3
 -------------------------------------------------------
