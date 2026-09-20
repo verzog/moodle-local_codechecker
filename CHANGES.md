@@ -1,3 +1,17 @@
+Changes in version 5.2.7 (20260920) - Sniffer security bump
+-------------------------------------------------------
+- Updated the bundled squizlabs/php_codesniffer from 3.13.5 to 3.13.6,
+  a security release (CVE-2026-67434 / GHSA-hmqg-cxww-wqhq). The fix
+  escapes file names in the Gitblame/Hgblame/Svnblame reports, which
+  could otherwise execute attacker-controlled shell commands when a
+  file name contains shell metacharacters. This plugin uses the default
+  Full report and is not affected in practice, but the bundled library
+  is updated so the vendored code matches the fixed release and the
+  Dependabot alert clears. Both composer.lock and the committed
+  vendor/ tree were regenerated (superseding the lockfile-only
+  Dependabot PR #9, which left the vendored code on 3.13.5), and
+  thirdpartylibs.xml now declares the matching 3.13.6 version.
+
 Changes in version 5.2.6 (20260920) - Ready for 5.3
 -------------------------------------------------------
 - Confirmed and documented explicit support for Moodle 5.2.x and the
