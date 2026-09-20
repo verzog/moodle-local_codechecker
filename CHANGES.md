@@ -6,6 +6,12 @@ Changes in version 5.2.6 (20260920) - Ready for 5.3
   PostgreSQL and MariaDB, so 5.3 is under test today. The
   MOODLE_503_STABLE branch is not cut until the LTS release (~5 October
   2026).
+- CI: bumped the database service images for the Moodle 5.3 (main)
+  jobs to the versions 5.3 requires - PostgreSQL 17 and MariaDB 11.4 -
+  via per-row matrix overrides. The 5.0-5.2 stable jobs keep
+  postgres:16.6 / mariadb:10.11 through the defaults. Without this the
+  main jobs failed the install environment check ("version 17 is
+  required", "version 11.4.0 is required").
 - Staged a commented-out MOODLE_503_STABLE block in the CI workflow,
   ready to enable the moment the stable branch is cut, with a note
   explaining why it is held back - the branch does not exist yet, so
