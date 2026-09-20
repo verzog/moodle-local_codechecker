@@ -1,3 +1,22 @@
+Changes in version 5.2.6 (20260920) - Ready for 5.3
+-------------------------------------------------------
+- Confirmed and documented explicit support for Moodle 5.2.x and the
+  upcoming Moodle 5.3 LTS. Moodle 5.3 development still lives on `main`,
+  which the CI matrix already exercises on PHP 8.3/8.4 against both
+  PostgreSQL and MariaDB, so 5.3 is under test today. The
+  MOODLE_503_STABLE branch is not cut until the LTS release (~5 October
+  2026).
+- Staged a commented-out MOODLE_503_STABLE block in the CI workflow,
+  ready to enable the moment the stable branch is cut, with a note
+  explaining why it is held back - the branch does not exist yet, so
+  enabling it now would fail every 5.3 job.
+- Clarified the README compatibility note: the PHP floor is 8.2 on
+  Moodle 5.0/5.1 but 8.3 on Moodle 5.2 and 5.3, matching upstream.
+- No plugin code changes. A review against the Moodle 5.3 API docs found
+  nothing this plugin uses is deprecated or removed in 5.3, and the new
+  routing subsystem (including 5.3 route Scopes) does not apply to this
+  page-based tool.
+
 Changes in version 5.2.5 (20260714) - Licence to skip
 -------------------------------------------------------
 - Added a "Skip Moodle licence and boilerplate checks" option to the web
