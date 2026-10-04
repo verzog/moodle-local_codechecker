@@ -91,7 +91,7 @@ class local_codechecker_form extends moodleform {
 
 /**
  * Sniffs that enforce the Moodle GPL boilerplate comment and the
- * @copyright / @license file tags. Proprietary or third-party code
+ * copyright and licence file tags. Proprietary or third-party code
  * intentionally carries different headers, so these can be excluded
  * from a run via the "Skip Moodle licence and boilerplate checks"
  * option without weakening any other check.
