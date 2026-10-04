@@ -24,6 +24,26 @@ Changes in version 5.3.2 (20261004) - Review fixes
   trailing-whitespace detection, count_problems(), licence_sniffs(),
   pretty_path() and get_ignores().
 
+Changes in version 5.3.1 (20261004) - Utils security bump and docs
+-------------------------------------------------------
+- Security: updated the bundled phpcsstandards/phpcsutils from 1.2.1 to
+  1.2.3, fixing a high-severity arbitrary code execution advisory
+  (CVE-2026-65954 / GHSA-r6hr-vr92-vv28, affects < 1.2.3). Only that
+  package changed; vendor/ holds the release package contents, recorded
+  as a dist install, and thirdpartylibs.xml declares 1.2.3.
+- composer.json: raised the PHP requirement and Composer platform from
+  7.4 to 8.2, the lowest PHP of the supported Moodle versions.
+- Added the GPLv3 LICENSE file at the plugin root and a .gitattributes
+  that forces LF line endings, with exceptions for the deliberate CRLF
+  test fixtures and the bundled vendor/ code.
+- README: install via ZIP / manually (including the public/ folder on
+  Moodle 5.1+), command-line and direct phpcs usage (without overwriting
+  the bundled installed_paths), third-party attribution and licence.
+  Dropped the claim that PHPCompatibility checks run (moodle-cs no
+  longer enables them).
+- Refreshed readme_moodle.txt and docs/ReleaseNewVersion.md for this
+  fork, and brought CLAUDE.md in line with the Moodle 5.0 - 5.3 baseline.
+
 Changes in version 5.3.0 (20261004) - Moodle 5.3 LTS
 -------------------------------------------------------
 - Declared support for Moodle 5.0 to 5.3 LTS with

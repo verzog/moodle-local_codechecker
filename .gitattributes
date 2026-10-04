@@ -1,0 +1,11 @@
+# Normalise every text file to LF line endings (Windows checkouts would
+# otherwise add CRLF, which the Moodle coding style rejects).
+* text=auto eol=lf
+
+# Deliberate exceptions - never convert these:
+# - CRLF test fixtures used to check the CRLF detection.
+tests/fixtures/crlf.csv -text
+tests/fixtures2/crlf.csv -text
+# - Bundled third-party code is kept byte-for-byte as released upstream
+#   (it includes its own CRLF and mixed-ending test files).
+vendor/** -text
