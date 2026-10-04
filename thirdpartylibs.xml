@@ -17,7 +17,7 @@
     <library>
         <location>vendor/phpcsstandards/phpcsutils</location>
         <name>A suite of utility functions for use with PHP_CodeSniffer</name>
-        <version>1.2.1</version>
+        <version>1.2.3</version>
         <license>LGPL</license>
         <licenseversion>3</licenseversion>
     </library>

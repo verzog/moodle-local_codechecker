@@ -5,12 +5,15 @@ These rules are drawn from real mistakes and CI failures across the
 `verzog/moodle-*` plugin suite — treat them as a pre-flight checklist, not
 background reading.
 
-**Requirements:** PHP 8.2 – 8.4, Moodle 5.0 – 5.2, plugin with `version.php` and
-`$plugin->component`. CI via GitHub Actions only.
+**Requirements:** PHP 8.2 – 8.4, Moodle 5.0 – 5.3 LTS, plugin with `version.php`
+and `$plugin->component`. CI via GitHub Actions only.
 
-> **Project baseline:** this codebase targets **Moodle 5.0 – 5.2**. Moodle 5.0
-> drops PHP 8.1, so the PHP floor is **8.2**. Moodle 5.2 supports PHP 8.3 – 8.4.
-> No Moodle 4.x or PHP 8.1 compatibility is built, tested, or supported.
+> **Project baseline:** this codebase targets **Moodle 5.0 – 5.3 LTS**
+> (`$plugin->supported = [500, 503]`). Moodle 5.0 drops PHP 8.1, so the PHP
+> floor is **8.2** (5.0 / 5.1); Moodle 5.2 and 5.3 support PHP 8.3 – 8.4 only,
+> and 5.3 needs PostgreSQL 17+ / MariaDB 11.4+. `main` is Moodle 6.0dev since
+> the `MOODLE_503_STABLE` cut and is not supported. No Moodle 4.x or PHP 8.1
+> compatibility is built, tested, or supported.
 
 ---
 
@@ -28,14 +31,16 @@ GitHub Actions (GHA) is the only supported CI provider. No Travis CI references.
   tests respect AEST/AWST offsets.
 - **`max_input_vars`:** Set `PHP_INI_VALUES: max_input_vars=5000` (or equivalent
   `php.ini` step) — Moodle's PHPUnit bootstrap requires it.
-- **Matrix:** PHP 8.2, 8.3, 8.4 × `pgsql` + `mysqli`, branches
-  `MOODLE_500_STABLE`, `MOODLE_501_STABLE`, `MOODLE_502_STABLE`, and `main`
-  (covers 5.3-dev until cut). Moodle 5.1 supports PHP 8.2 – 8.4; 5.2 supports
-  PHP 8.3 – 8.4 — gate matrix combos accordingly.
-- **`mysqli` driver:** run against `mariadb:10.11` (moodle-plugin-ci's own
-  `gha.dist` choice). Avoids the `mysql:8.0` init-health race.
-- **Service images:** pin `postgres:16.6` and `mysql:8.4.3` (or `mariadb:10.11`)
-  by tag — `:latest` drift caused silent breakage.
+- **Matrix (branch-aware):** `MOODLE_500_STABLE` → `MOODLE_503_STABLE`, each
+  covered on PostgreSQL and MariaDB across the set. PHP 8.2 only on 5.0 / 5.1
+  (5.2+ dropped it). `main` (6.0dev) is left out because the `supported` cap
+  stops the plugin installing there — comment that in the workflow so it is
+  not "fixed" back.
+- **MariaDB:** use `database: mariadb` with the `mariadb-admin ping` health
+  check (MariaDB 11.x has no `mysqladmin`).
+- **Service images:** pin `postgres:17` and `mariadb:11.4` by tag (the 5.3
+  floors, also fine for 5.0 – 5.2) — `:latest` drift caused silent breakage.
+  Start only the database a job uses (an empty service `image` skips it).
 - **Install resiliency:** wrap `composer create-project` and `moodle-plugin-ci
   install` in a 3-attempt retry with linear backoff; give the install step
   `id: install` and gate later steps on `steps.install.conclusion == 'success'`
@@ -70,9 +75,9 @@ before pushing workflow edits; a blind runner-image bump wastes a cycle.
 
 ### `$plugin->supported` and `main`
 
-Don't add `$plugin->supported` if the matrix also tests `main`. An upper bound
-fails `validate` on `main` jobs (the dev branch reports a higher version than
-the cap). Use the `requires` floor + README compatibility strapline instead.
+Set `$plugin->supported = [500, 503];`. An upper bound stops the plugin
+installing on a newer `main`, so don't test `main` while the cap is in place;
+when work on the next major starts, add `main` back with `continue-on-error`.
 
 ---
 
@@ -170,9 +175,9 @@ Every file area you serve must also be whitelisted in the plugin's
 editing source, regenerate the minified bundle using **Moodle's own grunt
 pipeline** (`grunt amd` from the moodleroot), not a standalone bundler — the
 wrapper, source maps, and AMD shim it produces are what `mustache` and the
-loader expect. If grunt is unavailable, produce a hand-minified build matching
-the existing wrapper byte-for-byte. Then bump `version.php` and purge all
-caches.
+loader expect. Never hand-edit or hand-minify `build/` — CI's grunt step
+rebuilds it and fails on any difference. Commit `src/` and `build/` together,
+then bump `version.php` and purge all caches.
 
 ### 3.5 Bump `version.php` for Any Cached Asset Change
 
@@ -422,8 +427,8 @@ Run CodeSniffer locally:
 - [ ] Workflow file is GitHub Actions only — no Travis CI references.
 - [ ] Runner is `ubuntu-24.04`; `TZ: Australia/Sydney`; `max_input_vars=5000`.
 - [ ] Service images pinned; install step retried; later steps gated on it.
-- [ ] CI matrix: PHP 8.2/8.3/8.4 × pgsql/mysqli × Moodle 5.0/5.1/5.2/main.
-- [ ] `$plugin->supported` absent if `main` is in the matrix.
+- [ ] CI matrix: branch-aware, Moodle 5.0 – 5.3 × PHP 8.2 – 8.4 × pgsql/mariadb.
+- [ ] `$plugin->supported = [500, 503]`; `main` not in the matrix while capped.
 - [ ] Form actions point to explicit `index.php`, not a bare directory URL.
 - [ ] Block migrations check for the new-component `{block}` row before
       renaming the old one.

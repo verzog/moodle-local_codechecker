@@ -53,9 +53,9 @@
             'dev_requirement' => false,
         ),
         'phpcsstandards/phpcsutils' => array(
-            'pretty_version' => '1.2.1',
-            'version' => '1.2.1.0',
-            'reference' => 'd71128c702c180ca3b27c761b6773f883394f162',
+            'pretty_version' => '1.2.3',
+            'version' => '1.2.3.0',
+            'reference' => '5f35d9408c54d7b529501f3c688b6eae562aea1f',
             'type' => 'phpcodesniffer-standard',
             'install_path' => __DIR__ . '/../phpcsstandards/phpcsutils',
             'aliases' => array(),
