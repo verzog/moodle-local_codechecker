@@ -25,7 +25,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: 'trust'
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+        options: --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 3
       mariadb:
         image: ${{ matrix.database == 'mariadb' && 'mariadb:11.4' || '' }}
         env:
@@ -55,7 +55,7 @@ jobs:
           - {moodle-branch: 'MOODLE_503_STABLE', php: '8.4', database: 'pgsql'}
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: plugin
 
