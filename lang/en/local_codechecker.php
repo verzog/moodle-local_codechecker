@@ -23,20 +23,24 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 $string['check'] = 'Check code';
 $string['clihelp'] = 'Check some PHP code against the Moodle coding guidelines.
 Options:
   --interactive, -i Stops after every file allowing to continue with the next
                     file or to repeat the check against the same one.
   --exclude, -e     Exclude files with a comma separated list of substr matching paths,
-                    Asterisks are allowed as wildchars at any place.
+                    Asterisks are allowed as wildcards at any place.
   --skiplicence, -l Skip the Moodle GPL boilerplate and licence/copyright tag checks,
                     for proprietary or third-party code with its own headers.
   --help, -h        Shows this information
 Example:
   php run.php local/codechecker';
 $string['error_find'] = 'Folder search failed';
+$string['error_processing'] = 'Problem during processing; checking has been aborted. The error message was: {$a}';
+$string['example_file'] = '{$a} - a single file';
+$string['example_module'] = '{$a} - an activity module';
+$string['example_plugin'] = '{$a} - a plugin';
+$string['example_subplugin'] = '{$a->path} - a subplugin (here the {$a->component} TinyMCE editor plugin)';
 $string['exclude'] = 'Exclude';
 $string['filesfound'] = 'Files found: {$a}';
 $string['filesummary'] = '{$a->path} - {$a->count}';
@@ -46,7 +50,7 @@ $string['info'] = '<p>Checks code against some aspects of the {$a->link}.</p>
 {$a->path}
 <p>You can enter either a specific PHP file, or a folder to check all the files it contains.
 Multiple entries are supported (files or folders), one per line.</p>
-<p>To exclude files, a comma separated list of substr matching paths can be used, for example: {$a->excludeexample}. Asterisks are allowed as wildchars at any place.</p>
+<p>To exclude files, a comma separated list of substr matching paths can be used, for example: {$a->excludeexample}. Asterisks are allowed as wildcards at any place.</p>
 <p>When checking proprietary or third-party code that intentionally carries its own file headers instead of the Moodle GPL ones, tick "Skip Moodle licence and boilerplate checks" so only the genuine coding-style problems are reported.</p>';
 $string['invalidpath'] = 'Invalid path {$a}';
 $string['moodlecodingguidelines'] = 'Moodle coding guidelines';
@@ -66,4 +70,3 @@ $string['showstandard'] = 'Display phpcs standard associated with a problem';
 $string['skiplicencechecks'] = 'Skip Moodle licence and boilerplate checks';
 $string['success'] = 'Well done!';
 $string['summary'] = 'Total: {$a}';
-$string['wholefile'] = 'File';

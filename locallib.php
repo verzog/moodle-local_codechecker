@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 
@@ -55,13 +55,15 @@ class local_codechecker_form extends moodleform {
             get_string('moodlecodingguidelines', 'local_codechecker')
         );
         $a->path = html_writer::alist([
-            html_writer::tag('tt', 'local/codechecker') . ' - a plugin',
-            html_writer::tag('tt', 'lib/editor/tiny/plugins/bootstrap') .
-                ' - a subplugin (here the ' . html_writer::tag('tt', 'tiny_bootstrap') . ' TinyMCE editor plugin)',
-            html_writer::tag('tt', 'mod/forum') . ' - an activity module',
-            html_writer::tag('tt', 'local/codechecker/locallib.php') . ' - a single file',
+            get_string('example_plugin', 'local_codechecker', html_writer::tag('code', 'local/codechecker')),
+            get_string('example_subplugin', 'local_codechecker', (object) [
+                'path' => html_writer::tag('code', 'lib/editor/tiny/plugins/bootstrap'),
+                'component' => html_writer::tag('code', 'tiny_bootstrap'),
+            ]),
+            get_string('example_module', 'local_codechecker', html_writer::tag('code', 'mod/forum')),
+            get_string('example_file', 'local_codechecker', html_writer::tag('code', 'local/codechecker/locallib.php')),
         ]);
-        $a->excludeexample = html_writer::tag('tt', 'db, backup/*1, *lib*');
+        $a->excludeexample = html_writer::tag('code', 'db, backup/*1, *lib*');
         $mform->addElement('static', '', '', get_string('info', 'local_codechecker', $a));
 
         $mform->addElement('textarea', 'path', get_string('path', 'local_codechecker'), ['rows' => '4', 'cols' => 48]);
@@ -135,11 +137,21 @@ function autoload_tools(): bool {
 
 /**
  * Convert a full path name to a relative one, for output.
+ *
+ * PHP_CodeSniffer reports resolved (real) paths, so when the Moodle code root
+ * is reached through a symlink the resolved root is stripped as well.
+ *
  * @param string $file a full path name of a file.
  * @return string the prettied up path name.
  */
 function local_codechecker_pretty_path($file) {
     global $CFG;
+    $file = (string) $file;
+    foreach (array_unique([$CFG->dirroot, (string) realpath($CFG->dirroot)]) as $root) {
+        if ($root !== '' && strpos($file, $root . DIRECTORY_SEPARATOR) === 0) {
+            return substr($file, strlen($root) + 1);
+        }
+    }
     return substr($file, strlen($CFG->dirroot) + 1);
 }
 
@@ -155,7 +167,7 @@ function local_codesniffer_get_ignores($extraignorelist = '') {
     $files = []; // XML files to be processed.
     $paths = []; // Absolute paths to be excluded.
 
-    $files['core'] = $CFG->libdir . DIRECTORY_SEPARATOR . '/thirdpartylibs.xml'; // This one always exists.
+    $files['core'] = $CFG->libdir . '/thirdpartylibs.xml'; // This one always exists.
 
     // With MDL-42148, for 2.6 and upwards, the general 'thirdpartylibs.xml' file
     // has been split so any plugin with dependencies can have its own. In order to
@@ -177,7 +189,7 @@ function local_codesniffer_get_ignores($extraignorelist = '') {
         $base = realpath(dirname($file));
         $thirdparty = simplexml_load_file($file);
         foreach ($thirdparty->xpath('/libraries/library/location') as $location) {
-            $location = substr($base, strlen($CFG->dirroot)) . '/' . $location;
+            $location = '/' . local_codechecker_pretty_path($base) . '/' . $location;
             // This was happening since ages ago, leading to incorrect excluded
             // paths like: "/lib/theme/bootstrapbase/less/bootstrap", so we try
             // reducing it. Note this does not affect 2.6 and up, where all
@@ -200,11 +212,6 @@ function local_codesniffer_get_ignores($extraignorelist = '') {
             }
         }
     }
-
-    // Manually add our own phpcs stuff to be excluded.
-    $paths[] = preg_quote(local_codechecker_clean_path(
-        '/local/codechecker' . DIRECTORY_SEPARATOR . 'phpcs'
-    ));
 
     // Changed in PHP_CodeSniffer 1.4.4 and upwards, so we apply the
     // same here: Paths go to keys and mark all them as 'absolute'.
@@ -380,9 +387,17 @@ function local_codechecker_add_problem($fileinxml, $file, $line, $key, $warning 
  */
 function local_codechecker_check_other_file($file, $xml) {
 
+    // Find the file in the report, comparing names directly rather than
+    // building an XPath query, which breaks on names containing quotes.
+    $fileinxml = null;
+    foreach ($xml->file as $candidate) {
+        if ((string) $candidate['name'] === $file) {
+            $fileinxml = $candidate;
+            break;
+        }
+    }
     // If the file does not exist, add it.
-    $fileinxml = $xml->xpath("file[@name='$file']");
-    if (!count($fileinxml)) {
+    if ($fileinxml === null) {
         $fileinxml = $xml->addChild('file');
         $fileinxml->addAttribute('name', $file);
         $fileinxml->addAttribute('errors', 0);
@@ -412,16 +427,17 @@ function local_codechecker_check_other_file($file, $xml) {
         if (strpos($l, "\n") === false) {
             local_codechecker_add_problem($fileinxml, $file, $index, 'missinglf');
         }
+        // Whitespace at EOL. Checked before the full trim below, which would
+        // otherwise remove the very spaces this looks for.
+        if (preg_match('~ +$~', rtrim($l, "\r\n"))) {
+            local_codechecker_add_problem($fileinxml, $file, $index, 'eol');
+        }
+
         $l = rtrim($l);
         if ($l === '') {
             $blankrun++;
         } else {
             $blankrun = 0;
-        }
-
-        // Whitespace at EOL.
-        if (preg_match('~ +$~', $l)) {
-            local_codechecker_add_problem($fileinxml, $file, $index, 'eol');
         }
         // Tab anywhere in line.
         if (preg_match('~\t~', $l)) {
