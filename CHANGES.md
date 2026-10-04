@@ -1,3 +1,20 @@
+Changes in version 5.3.0 (20261004) - Moodle 5.3 LTS
+-------------------------------------------------------
+- Declared support for Moodle 5.0 to 5.3 LTS with
+  $plugin->supported = [500, 503]. Moodle 5.3 has been released
+  (MOODLE_503_STABLE was cut on 5 Oct 2026) and main is now Moodle
+  6.0dev, so the earlier "main = 5.3" wording no longer applies.
+- CI: replaced the main jobs with MOODLE_503_STABLE jobs (PHP 8.3 and
+  8.4). main (6.0dev) is no longer tested, because the supported cap
+  stops the plugin installing there.
+- CI: added MariaDB jobs for the stable branches (previously only main
+  ran MariaDB), moved every job to PostgreSQL 17 / MariaDB 11.4, and
+  only start the database container a job actually uses.
+- CI: added the PHPDoc checker (--max-warnings 0) and run PHPUnit with
+  --fail-on-warning.
+- CI: pushes now only trigger the workflow on main; branches are tested
+  through their pull request, so each change runs the matrix once.
+
 Changes in version 5.2.7 (20260920) - Sniffer security bump
 -------------------------------------------------------
 - Updated the bundled squizlabs/php_codesniffer from 3.13.5 to 3.13.6,

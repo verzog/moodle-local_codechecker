@@ -1,6 +1,11 @@
 name: Codechecker CI
 
-on: [push, pull_request]
+on:
+  # Push runs only for main; branches are tested through their pull request,
+  # so a push to a branch with an open PR does not run the matrix twice.
+  push:
+    branches: [main]
+  pull_request:
 
 env:
   TZ: Australia/Sydney
@@ -10,16 +15,19 @@ jobs:
     runs-on: ubuntu-24.04
 
     services:
+      # Only the database a job uses is started (an empty image skips the
+      # service). PostgreSQL 17 / MariaDB 11.4 are the Moodle 5.3 floors and
+      # are also supported by Moodle 5.0 - 5.2, so every branch uses them.
       postgres:
-        image: ${{ matrix.postgres_image || 'postgres:16.6' }}
+        image: ${{ matrix.database == 'pgsql' && 'postgres:17' || '' }}
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+        options: --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 3
       mariadb:
-        image: ${{ matrix.mariadb_image || 'mariadb:10.11' }}
+        image: ${{ matrix.database == 'mariadb' && 'mariadb:11.4' || '' }}
         env:
           MYSQL_USER: 'root'
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"
@@ -30,67 +38,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Branch-aware: Moodle 5.2+ dropped PHP 8.2, so 8.2 only runs on 5.0.
+        # Each branch is covered on both PostgreSQL and MariaDB across the set.
+        #
+        # main is deliberately NOT tested: since the MOODLE_503_STABLE cut
+        # (5 Oct 2026) main is Moodle 6.0dev, and version.php caps
+        # $plugin->supported at 503, so Moodle refuses to install the plugin
+        # there. Add main back (with continue-on-error) only when work on
+        # 6.0 support starts.
         include:
-          # Highest php version supported by each branch, with main
-          # (5.3dev until the MOODLE_503_STABLE cut, ~5 Oct 2026) tested
-          # on both DBs. Moodle 5.3 raised the database floors (PostgreSQL
-          # 17, MariaDB 11.4), so the main rows override the pinned service
-          # images below; the 5.0-5.2 stable branches keep postgres:16.6 /
-          # mariadb:10.11 via the defaults.
-          - php: 8.4
-            moodle-branch: main
-            database: pgsql
-            postgres_image: postgres:17
-            mariadb_image: mariadb:11.4
-          - php: 8.4
-            moodle-branch: main
-            database: mariadb
-            postgres_image: postgres:17
-            mariadb_image: mariadb:11.4
-
-          # Moodle 5.3 LTS stable branch. Held back because MOODLE_503_STABLE
-          # is not cut until the 5.3 release (~5 Oct 2026); enabling it before
-          # then would fail every 5.3 job (branch does not exist). Until the
-          # cut, the `main` rows above ARE Moodle 5.3. Uncomment on release day
-          # (5.3 supports PHP 8.3-8.4, pgsql + mariadb, on the 5.3 DB floors).
-          # - php: 8.4
-          #   moodle-branch: MOODLE_503_STABLE
-          #   database: pgsql
-          #   postgres_image: postgres:17
-          #   mariadb_image: mariadb:11.4
-          # - php: 8.3
-          #   moodle-branch: MOODLE_503_STABLE
-          #   database: mariadb
-          #   postgres_image: postgres:17
-          #   mariadb_image: mariadb:11.4
-          - php: 8.4
-            moodle-branch: MOODLE_502_STABLE
-            database: pgsql
-          - php: 8.4
-            moodle-branch: MOODLE_501_STABLE
-            database: pgsql
-          - php: 8.3
-            moodle-branch: MOODLE_500_STABLE
-            database: pgsql
-
-          # Lowest php version supported by each branch.
-          - php: 8.3
-            moodle-branch: main
-            database: pgsql
-            postgres_image: postgres:17
-            mariadb_image: mariadb:11.4
-          - php: 8.3
-            moodle-branch: MOODLE_502_STABLE
-            database: pgsql
-          - php: 8.2
-            moodle-branch: MOODLE_501_STABLE
-            database: pgsql
-          - php: 8.2
-            moodle-branch: MOODLE_500_STABLE
-            database: pgsql
+          - {moodle-branch: 'MOODLE_500_STABLE', php: '8.2', database: 'pgsql'}
+          - {moodle-branch: 'MOODLE_501_STABLE', php: '8.4', database: 'mariadb'}
+          - {moodle-branch: 'MOODLE_502_STABLE', php: '8.3', database: 'pgsql'}
+          - {moodle-branch: 'MOODLE_502_STABLE', php: '8.4', database: 'mariadb'}
+          - {moodle-branch: 'MOODLE_503_STABLE', php: '8.3', database: 'mariadb'}
+          - {moodle-branch: 'MOODLE_503_STABLE', php: '8.4', database: 'pgsql'}
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: plugin
 
@@ -154,6 +119,10 @@ jobs:
         if: ${{ !cancelled() && steps.install.conclusion == 'success' }}
         run: moodle-plugin-ci codechecker --max-warnings 0
 
+      - name: Moodle PHPDoc Checker
+        if: ${{ !cancelled() && steps.install.conclusion == 'success' }}
+        run: moodle-plugin-ci phpdoc --max-warnings 0
+
       - name: Validating
         if: ${{ !cancelled() && steps.install.conclusion == 'success' }}
         run: moodle-plugin-ci validate
@@ -172,7 +141,7 @@ jobs:
 
       - name: PHPUnit tests
         if: ${{ !cancelled() && steps.install.conclusion == 'success' }}
-        run: moodle-plugin-ci phpunit
+        run: moodle-plugin-ci phpunit --fail-on-warning
 
       - name: Behat features
         if: ${{ !cancelled() && steps.install.conclusion == 'success' }}
