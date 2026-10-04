@@ -18,7 +18,9 @@ Changes in version 5.3.2 (20261004) - Review fixes
   excluded through thirdpartylibs.xml).
 - Improved the contrast of the whitespace markers in the source view
   (#555 on #eee, WCAG AA) and dropped the CSS rule for the Canvas theme.
-- PHPUnit: class-level @covers, and new tests for quoted file names,
+- PHPUnit: coverage and data providers declared with PHP attributes
+  (CoversFunction, DataProvider) instead of the docblock annotations
+  PHPUnit 11 deprecates, and new tests for quoted file names,
   trailing-whitespace detection, count_problems(), licence_sniffs(),
   pretty_path() and get_ignores().
 
