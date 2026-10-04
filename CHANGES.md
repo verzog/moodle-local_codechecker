@@ -1,3 +1,29 @@
+Changes in version 5.3.2 (20261004) - Review fixes
+-------------------------------------------------------
+- Fixed the "Whitespace at end of line" check for txt/html/csv files,
+  which never reported anything: lines were trimmed before being
+  checked for trailing spaces (long-standing upstream bug).
+- Fixed a fatal error when a checked txt/html/csv file name contains a
+  quote: the report lookup built an XPath query from the raw name.
+- The temporary phpcs report now lives in a per-request directory, so
+  it is cleaned up even when a run fails part-way.
+- File paths are now shown correctly when the Moodle code root is
+  reached through a symlink (phpcs reports resolved paths).
+- Moved the remaining hardcoded English (form examples, the runner's
+  processing error) into language strings; removed the unused
+  "wholefile" string and fixed "wildchars" -> "wildcards".
+- Replaced the obsolete <tt> tag with <code>, set_time_limit() with
+  core_php_time_limit::raise(), and dirname(__FILE__) with __DIR__.
+  Removed the stale exclusion for the old phpcs/ folder (vendor/ is
+  excluded through thirdpartylibs.xml).
+- Improved the contrast of the whitespace markers in the source view
+  (#555 on #eee, WCAG AA) and dropped the CSS rule for the Canvas theme.
+- PHPUnit: coverage and data providers declared with PHP attributes
+  (CoversFunction, DataProvider) instead of the docblock annotations
+  PHPUnit 11 deprecates, and new tests for quoted file names,
+  trailing-whitespace detection, count_problems(), licence_sniffs(),
+  pretty_path() and get_ignores().
+
 Changes in version 5.3.1 (20261004) - Utils security bump and docs
 -------------------------------------------------------
 - Security: updated the bundled phpcsstandards/phpcsutils from 1.2.1 to

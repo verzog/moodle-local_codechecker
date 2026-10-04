@@ -40,7 +40,7 @@ admin_externalpage_setup('local_codechecker');
 
 // We are going to need lots of memory and time.
 raise_memory_limit(MEMORY_HUGE);
-set_time_limit(600);
+core_php_time_limit::raise(600);
 
 // Submit to the explicit index.php endpoint (the same URL the admin menu
 // and page registration use), not the bare directory. Posting to the
@@ -115,7 +115,9 @@ if ($pathlist) {
         // the runPHPCS() upstream one.
         $runner = new \local_codechecker\runner();
 
-        $reportfile = make_temp_directory('phpcs') . '/phpcs_' . random_string(10) . '.xml';
+        // A per-request directory is removed automatically when the request
+        // ends, even if the run fails part-way, so no report file is left behind.
+        $reportfile = make_request_directory() . '/phpcs.xml';
         $runner->set_reportfile($reportfile);
         $runner->set_includewarnings($includewarnings);
         $runner->set_ignorepatterns($ignores);
@@ -142,9 +144,6 @@ if ($pathlist) {
             'showstandard' => (int) $showstandard,
             'skiplicencechecks' => (int) $skiplicencechecks,
         ]);
-
-        // And clean the report temp file.
-        @unlink($reportfile);
     }
 }
 

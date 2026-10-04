@@ -22,10 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026100401;
-$plugin->release   = '5.3.1';
+$plugin->version   = 2026100402;
+$plugin->release   = '5.3.2';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->requires  = 2025041400; // Moodle 5.0 release and upwards (PHP 8.2 floor).
 $plugin->supported = [500, 503]; // Moodle 5.0 to 5.3 LTS, matching the CI matrix.

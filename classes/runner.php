@@ -152,7 +152,7 @@ class runner extends \PHP_CodeSniffer\Runner {
                     echo $e->getMessage();
                     return $e->getCode();
                 } catch (\Exception $e) {
-                    $error = 'Problem during processing; checking has been aborted. The error message was: ' . $e->getMessage();
+                    $error = get_string('error_processing', 'local_codechecker', $e->getMessage());
                     $file->addErrorOnLine($error, 1, 'Internal.Exception');
                 }
                 $file->cleanUp();
