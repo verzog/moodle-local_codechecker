@@ -102,7 +102,10 @@ declare ``@license Proprietary``) fails those two checks on every file,
 which drowns out the genuine style problems. Tick **Skip Moodle licence
 and boilerplate checks** on the check form (or pass ``--skiplicence`` to
 ``run.php``) to exclude just those sniffs for a run; all other checks
-still apply.
+still apply. In particular, a ``//`` licence header is still checked like
+any other inline comment (it must start with a capital letter and its
+last line must end with a full stop), exactly as ``moodle-plugin-ci
+phpcs`` does in CI with the boilerplate sniff excluded.
 
 We hope you find this tool useful. Feel free to enhance it! Also, you can
 report any idea or bug using GitHub's issues and pull requests, thanks!

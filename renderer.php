@@ -48,7 +48,7 @@ class local_codechecker_renderer extends plugin_renderer_base {
      * Display an entry in the list of the files checked.
      * @param int $fileindex unique index of this file.
      * @param string $prettypath the name of the file checked.
-     * @param int $numproblems the number of problems found in this file.
+     * @param string $numproblems summary of the problems found in this file, empty if none.
      * @return string HTML to output.
      */
     public function summary_line($fileindex, $prettypath, $numproblems) {
