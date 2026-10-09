@@ -1,3 +1,16 @@
+Changes in version 5.3.3 (20261009) - Self-check and ignore fixes
+-------------------------------------------------------
+- Checking local/codechecker itself now reports no problems: the CRLF
+  test file that lived outside tests/fixtures/ (tests/fixtures2/crlf.csv)
+  is now created at runtime by the unit test instead of being shipped.
+- Fixed the txt/html/csv checks ignoring nothing from thirdpartylibs.xml
+  locations containing "-" or ".": those patterns were regex-quoted
+  twice, so bundled third-party files were checked although phpcs
+  correctly skipped them.
+- Clarified what "Skip Moodle licence and boilerplate checks" skips: the
+  comment lines of a custom header are still checked like any other
+  inline comment, matching moodle-plugin-ci phpcs in CI.
+
 Changes in version 5.3.2 (20261004) - Review fixes
 -------------------------------------------------------
 - Fixed the "Whitespace at end of line" check for txt/html/csv files,

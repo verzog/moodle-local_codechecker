@@ -315,11 +315,14 @@ function local_codechecker_find_other_files(&$arr, $folder, $ignores, $extension
         // Finder regex.
         $regex = '~\.(' . implode('|', $extensions) . ')$~';
 
-        // Ignores regex.
+        // Ignores regex. The thirdpartylibs.xml locations arrive already regex-quoted,
+        // while the user exclude patterns are raw substrings, so undo any quoting
+        // first and then quote every pattern exactly once. Quoting twice would stop
+        // paths containing "-" or "." from ever matching.
         $ignoresarr = [];
         $ignoresregex = '~THIS_IS_A_NON_MATCHER~';
         foreach ($ignores as $ignore) {
-            $ignore = preg_quote($ignore);
+            $ignore = preg_quote(preg_replace('~\\\\(.)~', '$1', $ignore), '~');
             $ignore = str_replace('\*', '.*', $ignore);
             $ignoresarr[] = $ignore;
         }

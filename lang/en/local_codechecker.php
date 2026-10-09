@@ -46,12 +46,18 @@ $string['filesfound'] = 'Files found: {$a}';
 $string['filesummary'] = '{$a->path} - {$a->count}';
 $string['includewarnings'] = 'Include warnings';
 $string['info'] = '<p>Checks code against some aspects of the {$a->link}.</p>
-<p>Enter one or more paths (one per line) relative to the Moodle code root. The component name maps to its directory, for example:</p>
+<p>Enter one or more paths (one per line) relative to the Moodle code root.
+The component name maps to its directory, for example:</p>
 {$a->path}
 <p>You can enter either a specific PHP file, or a folder to check all the files it contains.
 Multiple entries are supported (files or folders), one per line.</p>
-<p>To exclude files, a comma separated list of substr matching paths can be used, for example: {$a->excludeexample}. Asterisks are allowed as wildcards at any place.</p>
-<p>When checking proprietary or third-party code that intentionally carries its own file headers instead of the Moodle GPL ones, tick "Skip Moodle licence and boilerplate checks" so only the genuine coding-style problems are reported.</p>';
+<p>To exclude files, a comma separated list of substr matching paths can be used, for example: {$a->excludeexample}.
+Asterisks are allowed as wildcards at any place.</p>
+<p>When checking proprietary or third-party code that intentionally carries its own file headers instead of the
+Moodle GPL ones, tick "Skip Moodle licence and boilerplate checks" so only the genuine coding-style problems are
+reported. This skips only the GPL boilerplate check and the @copyright / @license tag checks. The comment lines of
+your own header are still checked like any other comment, as they are in CI (for example, the last line must end
+with a full stop).</p>';
 $string['invalidpath'] = 'Invalid path {$a}';
 $string['moodlecodingguidelines'] = 'Moodle coding guidelines';
 $string['numerrorswarnings'] = '{$a->errors} error(s) and {$a->warnings} warning(s)';

@@ -27,7 +27,7 @@ define('CLI_SCRIPT', true);
 require(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/clilib.php');
 
-// Own stuff (TODO: Some day all these will be moved to classes).
+// Own library code.
 require_once($CFG->dirroot . '/local/codechecker/locallib.php');
 
 // Auto load all the (vendor installed) tools we are going to need.

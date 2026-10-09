@@ -100,6 +100,20 @@ final class locallib_test extends \basic_testcase {
                 'matches' => ['one.txt', 'two.txt'],
                 'nomatches' => ['three.txt'],
             ],
+            'one dir regex-quoted ignore' => [
+                'path' => 'local/codechecker/tests',
+                'ignores' => [preg_quote('fixtures/three.txt')],
+                'extensions' => $defaultextensions,
+                'matches' => ['one.txt', 'two.txt'],
+                'nomatches' => ['three.txt'],
+            ],
+            'one dir regex characters in ignore' => [
+                'path' => 'local/codechecker/tests',
+                'ignores' => ['nomatch[', 'one.txt'],
+                'extensions' => $defaultextensions,
+                'matches' => ['two.txt'],
+                'nomatches' => ['one.txt'],
+            ],
         ];
     }
 
@@ -169,9 +183,13 @@ final class locallib_test extends \basic_testcase {
         local_codechecker_check_other_file(__DIR__ . '/fixtures/crlf.csv', $xml);
         $this->assertStringContainsString('errors="0" warnings="0"', $xml->asXML());
 
-        // Verify crlf files in not in /tests/fixtures/ locations are wrong.
+        // Verify crlf files not in /tests/fixtures/ locations are wrong. The file is
+        // created at runtime so the plugin itself has no CRLF file outside the
+        // fixtures, which would make checking local/codechecker report an error.
+        $file = make_request_directory() . '/crlf.csv';
+        file_put_contents($file, "f1,f2,f3\r\n1,2,3\r\n");
         $xml = new \SimpleXMLElement('<xml/>');
-        local_codechecker_check_other_file(__DIR__ . '/fixtures2/crlf.csv', $xml);
+        local_codechecker_check_other_file($file, $xml);
         $this->assertStringContainsString('errors="1" warnings="0"', $xml->asXML());
         $this->assertStringContainsString('Windows (CRLF) line ending instead of just LF', $xml->asXML());
     }
