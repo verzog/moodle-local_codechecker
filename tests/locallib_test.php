@@ -107,6 +107,13 @@ final class locallib_test extends \basic_testcase {
                 'matches' => ['one.txt', 'two.txt'],
                 'nomatches' => ['three.txt'],
             ],
+            'one dir regex characters in ignore' => [
+                'path' => 'local/codechecker/tests',
+                'ignores' => ['nomatch[', 'one.txt'],
+                'extensions' => $defaultextensions,
+                'matches' => ['two.txt'],
+                'nomatches' => ['one.txt'],
+            ],
         ];
     }
 
