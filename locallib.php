@@ -67,6 +67,7 @@ class local_codechecker_form extends moodleform {
         $mform->addElement('static', '', '', get_string('info', 'local_codechecker', $a));
 
         $mform->addElement('textarea', 'path', get_string('path', 'local_codechecker'), ['rows' => '4', 'cols' => 48]);
+        // Raw: a list of paths, one per line; index.php cleans each line with PARAM_PATH.
         $mform->setType('path', PARAM_RAW);
         $mform->addRule('path', null, 'required', null, 'client');
 
@@ -84,6 +85,11 @@ class local_codechecker_form extends moodleform {
         $mform->addElement('advcheckbox', 'skiplicencechecks', get_string('skiplicencechecks', 'local_codechecker'));
         $mform->setType('skiplicencechecks', PARAM_BOOL);
         $mform->setDefault('skiplicencechecks', false);
+
+        $mform->addElement('advcheckbox', 'audit', get_string('audit', 'local_codechecker'));
+        $mform->addHelpButton('audit', 'audit', 'local_codechecker');
+        $mform->setType('audit', PARAM_BOOL);
+        $mform->setDefault('audit', false);
 
         $mform->addElement('submit', 'submitbutton', get_string('check', 'local_codechecker'));
     }
@@ -103,6 +109,31 @@ function local_codechecker_licence_sniffs(): array {
         'moodle.Files.BoilerplateComment',
         'moodle.Commenting.FileExpectedTags',
     ];
+}
+
+/**
+ * Run the audit checks that phpcs cannot do, and build the audit checklist.
+ *
+ * Scans Mustache templates and JavaScript sources for external script loads (S6),
+ * adding any findings to the report, then runs the plugin-level checks for every
+ * checked plugin root folder. Call this after the phpcs run and the other-file checks,
+ * and before counting the problems.
+ *
+ * @param string[] $fullpaths full paths that were checked.
+ * @param array $ignores ignore patterns, as for local_codechecker_find_other_files().
+ * @param SimpleXMLElement $xml the run's report, updated in place.
+ * @return array the checklist rows, see \local_codechecker\audit\checklist::rows().
+ */
+function local_codechecker_audit(array $fullpaths, array $ignores, SimpleXMLElement $xml): array {
+    $plugins = [];
+    foreach ($fullpaths as $path) {
+        \local_codechecker\audit\asset_scanner::add_to_report($xml, \local_codechecker\audit\asset_scanner::scan($path, $ignores));
+    }
+    foreach (\local_codechecker\audit\plugin_checks::find_plugin_roots($fullpaths) as $root) {
+        $plugins[local_codechecker_pretty_path($root)] = \local_codechecker\audit\plugin_checks::run($root);
+    }
+    $counts = \local_codechecker\audit\checklist::count_findings($xml);
+    return \local_codechecker\audit\checklist::rows($counts, $plugins);
 }
 
 /**

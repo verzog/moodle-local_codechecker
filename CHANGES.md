@@ -1,3 +1,30 @@
+Changes in version 5.3.4 (20261105) - Audit checks
+-------------------------------------------------------
+- New opt-in "Run audit checks (security, code quality and performance)"
+  option on the check form (--audit / -a for run.php). It adds the
+  bundled MoodleAudit phpcs standard (standards/MoodleAudit) to the run
+  and shows the audit checklist (S0 to S21, Q1 to Q8, P1 to P4) with how
+  each check is done and its result. Normal runs are unchanged and still
+  match moodle-plugin-ci phpcs in CI.
+- Automated checks (each finding starts with its check ID): direct
+  superglobal access and unjustified PARAM_RAW (S3), form fields without
+  setType() (S4), external script/stylesheet loads in PHP, Mustache
+  templates and AMD sources (S6), SQL built from request input (S7),
+  pages that write without a sesskey check (S8), shell execution (S9),
+  secrets or the sesskey in logs and error messages (S11, S16),
+  add_to_log() and other deprecated core APIs and hook-replaced lib.php
+  callbacks (S12, Q8), capability risk bitmasks in db/access.php (S13,
+  S14), writes to core globals (Q3), debug output (Q7), queries inside
+  loops (P1) and sleep() on the request path (P4).
+- Plugin-level checks, run when a plugin's root folder is checked:
+  privacy provider (S17), thirdpartylibs.xml declarations and undeclared
+  vendor/node_modules folders (S20), PHPUnit tests (Q4), the optional
+  db/uninstall.php (Q5) and a nonempty README (Q6). thirdpartylibs.xml
+  is read as data only and its locations must stay inside the plugin.
+- Checks already done by the Moodle coding style (S1, S18, Q2) are
+  counted in the checklist; the rest are listed for manual review.
+- Added a comment justifying the PARAM_RAW path list on the check form.
+
 Changes in version 5.3.3 (20261009) - Self-check and ignore fixes
 -------------------------------------------------------
 - Checking local/codechecker itself now reports no problems: the CRLF

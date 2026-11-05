@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+    Optional audit checks for local_codechecker.
+
+    These sniffs automate the parts of the security, code quality and
+    performance audit checklist that can be detected from the source code.
+    They run only when "Run audit checks" is ticked on the check form (or
+    with run.php - -audit), on top of the normal Moodle coding style.
+
+    Every error code is the checklist ID (for example
+    MoodleAudit.Security.Superglobals.S3), so the results can be grouped
+    by checklist item.
+
+    @package    local_codechecker
+    @copyright  2026 Vernon Spain
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+-->
+<ruleset name="MoodleAudit">
+    <description>Security, code quality and performance audit checks for Moodle plugins</description>
+</ruleset>

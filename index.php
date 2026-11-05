@@ -60,14 +60,17 @@ if ($data = $mform->get_data()) {
     $includewarnings = !empty($data->includewarnings);
     $showstandard = !empty($data->showstandard);
     $skiplicencechecks = !empty($data->skiplicencechecks);
+    $audit = !empty($data->audit);
 } else {
     // Backwards compatibility for direct GET links. These may still be
     // blocked by the same WAF rules when the path is present in the query.
+    // Raw: a list of paths, one per line; each line is cleaned with PARAM_PATH below.
     $pathlist = optional_param('path', '', PARAM_RAW);
     $exclude = optional_param('exclude', '', PARAM_NOTAGS);
     $includewarnings = optional_param('includewarnings', true, PARAM_BOOL);
     $showstandard = optional_param('showstandard', false, PARAM_BOOL);
     $skiplicencechecks = optional_param('skiplicencechecks', false, PARAM_BOOL);
+    $audit = optional_param('audit', false, PARAM_BOOL);
 }
 
 $mform->set_data((object)[
@@ -76,6 +79,7 @@ $mform->set_data((object)[
     'includewarnings' => $includewarnings,
     'showstandard' => $showstandard,
     'skiplicencechecks' => $skiplicencechecks,
+    'audit' => $audit,
 ]);
 
 $output = $PAGE->get_renderer('local_codechecker');
@@ -124,6 +128,7 @@ if ($pathlist) {
         if ($skiplicencechecks) {
             $runner->set_excludedsniffs(local_codechecker_licence_sniffs());
         }
+        $runner->set_audit($audit);
         $runner->set_files($fullpaths);
 
         $runner->run();
@@ -135,7 +140,15 @@ if ($pathlist) {
         foreach ($fullpaths as $checkpath) {
             local_codechecker_check_other_files($checkpath, $xml, array_keys($ignores));
         }
+        if ($audit) {
+            // Must run before counting, as it can add findings to the report.
+            $auditrows = local_codechecker_audit($fullpaths, array_keys($ignores), $xml);
+        }
         [$numerrors, $numwarnings] = local_codechecker_count_problems($xml);
+
+        if ($audit) {
+            echo $output->audit_checklist($auditrows, $includewarnings);
+        }
 
         // Output the results report. The recheck options are carried on the
         // per-file recheck links so a recheck keeps the same settings.
@@ -143,6 +156,7 @@ if ($pathlist) {
             'includewarnings' => (int) $includewarnings,
             'showstandard' => (int) $showstandard,
             'skiplicencechecks' => (int) $skiplicencechecks,
+            'audit' => (int) $audit,
         ]);
     }
 }

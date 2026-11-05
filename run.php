@@ -37,11 +37,12 @@ if (!autoload_tools()) {
 
 // Get the command-line options.
 [$options, $unrecognized] = cli_get_params(
-    ['help' => false, 'interactive' => false, 'exclude' => '', 'skiplicence' => false],
+    ['help' => false, 'interactive' => false, 'exclude' => '', 'skiplicence' => false, 'audit' => false],
     ['h' => 'help',
     'i' => 'interactive',
     'e' => 'exclude',
     'l' => 'skiplicence',
+    'a' => 'audit',
     ]
 );
 
@@ -67,12 +68,38 @@ raise_memory_limit(MEMORY_HUGE);
 $runner = new \local_codechecker\runner();
 $runner->set_verbosity(1);
 $runner->set_interactive($interactive);
-$runner->set_ignorepatterns(local_codesniffer_get_ignores($options['exclude']));
+$ignores = local_codesniffer_get_ignores($options['exclude']);
+$runner->set_ignorepatterns($ignores);
 if ($options['skiplicence']) {
     $runner->set_excludedsniffs(local_codechecker_licence_sniffs());
 }
 
 $fullpath = local_codechecker_clean_path($CFG->dirroot . '/' . trim($path, '/'));
 $runner->set_files([$fullpath]);
+$audit = !empty($options['audit']);
+if ($audit) {
+    // The audit checklist is built from an XML copy of the report.
+    $runner->set_audit(true);
+    $reportfile = make_request_directory() . '/phpcs.xml';
+    $runner->add_reportfile($reportfile);
+}
 
 $runner->run();
+
+if ($audit) {
+    $xml = simplexml_load_file($reportfile);
+    // Template and JavaScript findings are not part of the phpcs report above, so print them here.
+    $findings = \local_codechecker\audit\asset_scanner::scan($fullpath, array_keys($ignores));
+    foreach ($findings as $finding) {
+        cli_writeln(local_codechecker_pretty_path($finding['file']) . ':' . $finding['line'] . ': ' . $finding['message']);
+    }
+    $rows = local_codechecker_audit([$fullpath], array_keys($ignores), $xml);
+    cli_writeln('');
+    cli_heading(get_string('auditchecklist', 'local_codechecker'));
+    foreach ($rows as $row) {
+        cli_writeln($row['id'] . ' [' . $row['method'] . '] ' . $row['description']);
+        foreach ($row['results'] as $result) {
+            cli_writeln('    ' . $result);
+        }
+    }
+}
