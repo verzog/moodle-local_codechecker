@@ -64,7 +64,7 @@ if ($data = $mform->get_data()) {
 } else {
     // Backwards compatibility for direct GET links. These may still be
     // blocked by the same WAF rules when the path is present in the query.
-    // Raw: a list of paths, one per line; each line is cleaned with PARAM_PATH below.
+    // Security-lint: ignore S3 (a list of paths, one per line; each line is cleaned with PARAM_PATH below).
     $pathlist = optional_param('path', '', PARAM_RAW);
     $exclude = optional_param('exclude', '', PARAM_NOTAGS);
     $includewarnings = optional_param('includewarnings', true, PARAM_BOOL);

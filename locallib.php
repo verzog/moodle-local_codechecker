@@ -67,7 +67,7 @@ class local_codechecker_form extends moodleform {
         $mform->addElement('static', '', '', get_string('info', 'local_codechecker', $a));
 
         $mform->addElement('textarea', 'path', get_string('path', 'local_codechecker'), ['rows' => '4', 'cols' => 48]);
-        // Raw: a list of paths, one per line; index.php cleans each line with PARAM_PATH.
+        // Security-lint: ignore S3 (a list of paths, one per line; index.php cleans each line with PARAM_PATH).
         $mform->setType('path', PARAM_RAW);
         $mform->addRule('path', null, 'required', null, 'client');
 
