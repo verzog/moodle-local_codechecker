@@ -71,16 +71,31 @@ class Audit {
      * @return bool true if an external script or stylesheet tag is found.
      */
     public static function loads_external_asset(string $markup): bool {
-        if (preg_match(self::SCRIPT_PATTERN, $markup)) {
-            return true;
+        return self::external_asset_offsets($markup) !== [];
+    }
+
+    /**
+     * Find where some markup loads external scripts or stylesheets.
+     *
+     * Tags may span several lines.
+     *
+     * @param string $markup HTML, a PHP string or template text.
+     * @return int[] byte offset of each external script or stylesheet tag, in order.
+     */
+    public static function external_asset_offsets(string $markup): array {
+        $offsets = [];
+        preg_match_all(self::SCRIPT_PATTERN, $markup, $scripts, PREG_OFFSET_CAPTURE);
+        foreach ($scripts[0] as $script) {
+            $offsets[] = $script[1];
         }
-        preg_match_all(self::LINK_PATTERN, $markup, $links);
+        preg_match_all(self::LINK_PATTERN, $markup, $links, PREG_OFFSET_CAPTURE);
         foreach ($links[0] as $link) {
-            if (stripos($link, 'stylesheet') !== false) {
-                return true;
+            if (stripos($link[0], 'stylesheet') !== false) {
+                $offsets[] = $link[1];
             }
         }
-        return false;
+        sort($offsets);
+        return $offsets;
     }
 
     /**

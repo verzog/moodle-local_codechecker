@@ -27,8 +27,8 @@ namespace local_codechecker\audit;
 /**
  * Audit S6 for Mustache templates and JavaScript sources.
  *
- * phpcs only checks PHP, so templates and AMD sources are scanned here, line by line,
- * for <script src> / <link rel="stylesheet"> tags with an external URL and for
+ * phpcs only checks PHP, so templates and AMD sources are scanned here (whole files, so
+ * tags split over several lines are found) for <script src> / <link rel="stylesheet"> tags with an external URL and for
  * JavaScript that injects a script or stylesheet element. Test code is skipped.
  *
  * @package    local_codechecker
@@ -60,12 +60,15 @@ class asset_scanner {
             if (strpos(str_replace('\\', '/', $file), '/tests/') !== false) {
                 continue; // Test code never loads assets into a real page.
             }
-            $isjs = substr($file, -3) === '.js';
-            foreach (file($file) ?: [] as $index => $line) {
-                if (\MoodleAudit\Util\Audit::loads_external_asset($line)) {
-                    $findings[] = self::finding($file, $index + 1, 'externalasset_tag');
-                } else if ($isjs && preg_match(self::INJECTION_PATTERN, $line)) {
-                    $findings[] = self::finding($file, $index + 1, 'externalasset_inject');
+            // Scan the whole file, so tags split over several lines are found too.
+            $content = (string) file_get_contents($file);
+            foreach (\MoodleAudit\Util\Audit::external_asset_offsets($content) as $offset) {
+                $findings[] = self::finding($file, self::line_at($content, $offset), 'externalasset_tag');
+            }
+            if (substr($file, -3) === '.js') {
+                preg_match_all(self::INJECTION_PATTERN, $content, $matches, PREG_OFFSET_CAPTURE);
+                foreach ($matches[0] as $match) {
+                    $findings[] = self::finding($file, self::line_at($content, $match[1]), 'externalasset_inject');
                 }
             }
         }
@@ -100,6 +103,17 @@ class asset_scanner {
             $problem->addAttribute('severity', PHPCS_DEFAULT_ERROR_SEV);
             $fileinxml['errors'] = (int) $fileinxml['errors'] + 1;
         }
+    }
+
+    /**
+     * Get the line number of a byte offset.
+     *
+     * @param string $content the file contents.
+     * @param int $offset byte offset in the contents.
+     * @return int the 1-based line number.
+     */
+    protected static function line_at(string $content, int $offset): int {
+        return substr_count($content, "\n", 0, $offset) + 1;
     }
 
     /**

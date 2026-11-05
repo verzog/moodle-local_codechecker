@@ -39,13 +39,29 @@ use local_codechecker\audit\plugin_checks;
 final class audit_test extends \advanced_testcase {
     /**
      * Load the plugin library and the bundled PHP_CodeSniffer.
+     *
+     * Under PHPUnit, moodle-cs replaces the global $CFG with a minimal one when it looks up the
+     * component of a checked file (see MoodleUtil::calculateAllComponents()), which breaks the rest
+     * of the test. Giving it a mocked component list, its own test hook, stops that.
      */
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
         require_once($CFG->dirroot . '/local/codechecker/locallib.php');
         autoload_tools();
+        if (!class_exists(\MoodleHQ\MoodleCS\moodle\Util\MoodleUtil::class, false)) {
+            require_once($CFG->dirroot . '/local/codechecker/vendor/moodlehq/moodle-cs/moodle/Util/MoodleUtil.php');
+        }
+        \MoodleHQ\MoodleCS\moodle\Util\MoodleUtil::setMockedComponentMappings(['local_demo' => '/nonexistent/local/demo']);
         $this->resetAfterTest();
+    }
+
+    /**
+     * Remove the mocked moodle-cs component list.
+     */
+    protected function tearDown(): void {
+        \MoodleHQ\MoodleCS\moodle\Util\MoodleUtil::setMockedComponentMappings([]);
+        parent::tearDown();
     }
 
     /**
@@ -302,18 +318,19 @@ final class audit_test extends \advanced_testcase {
             'amd/build/demo.min.js' => "document.createElement('script');\n",
             'tests/behat/demo.mustache' => "<script src=\"https://cdn.example.com/a.js\"></script>\n",
             'templates/fine.mustache' => "<link rel=\"canonical\" href=\"https://example.com/\">\n",
+            'templates/multiline.mustache' => "<p>x</p>\n<script\n    src=\"https://cdn.example.com/b.js\"></script>\n",
         ]);
         $findings = asset_scanner::scan($root, ['*/amd/build/*']);
         $found = array_map(function ($finding) use ($root) {
             return substr($finding['file'], strlen($root) + 1) . ':' . $finding['line'];
         }, $findings);
         sort($found);
-        $this->assertSame(['amd/src/demo.js:1', 'templates/demo.mustache:2'], $found);
+        $this->assertSame(['amd/src/demo.js:1', 'templates/demo.mustache:2', 'templates/multiline.mustache:2'], $found);
 
         $xml = new \SimpleXMLElement('<phpcs></phpcs>');
         asset_scanner::add_to_report($xml, $findings);
-        $this->assertSame([2, 0], local_codechecker_count_problems($xml));
-        $this->assertSame(2, checklist::count_findings($xml)['S6']);
+        $this->assertSame([3, 0], local_codechecker_count_problems($xml));
+        $this->assertSame(3, checklist::count_findings($xml)['S6']);
     }
 
     /**

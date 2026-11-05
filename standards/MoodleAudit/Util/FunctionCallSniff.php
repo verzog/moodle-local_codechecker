@@ -82,14 +82,15 @@ abstract class FunctionCallSniff implements Sniff {
      * @return int|void a position to skip to, when the file is skipped.
      */
     public function process(File $file, $pointer) {
-        if ($this->skip_file($file)) {
-            return $file->numTokens;
-        }
         $tokens = $file->getTokens();
         $function = strtolower($tokens[$pointer]['content']);
         $functions = $this->functions();
+        // Check the token first: skip_file() may scan the whole file, so it runs only for a listed call.
         if (!array_key_exists($function, $functions) || !Audit::is_function_call($file, $pointer)) {
             return;
+        }
+        if ($this->skip_file($file)) {
+            return $file->numTokens;
         }
         $this->found($file, $pointer, $function, $functions[$function]);
     }
