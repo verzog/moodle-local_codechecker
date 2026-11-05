@@ -1,0 +1,77 @@
+name: Release zip
+
+# Builds the installable plugin zip and attaches it to a GitHub release.
+# Runs when a release is published, or by hand ("Run workflow") for an
+# existing tag, for example to rebuild a missing or broken zip. Never attach
+# release zips by hand; re-run this workflow instead.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to build the zip for (for example v5.3.4)'
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  # The zip's root folder must be the plugin's directory name, or Moodle's
+  # Install plugins page rejects it.
+  PLUGIN_DIR: codechecker
+  COMPONENT: local_codechecker
+
+jobs:
+  zip:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Work out the tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          TAG="${RELEASE_TAG:-$INPUT_TAG}"
+          if [ -z "$TAG" ]; then
+              echo "No release tag given." >&2
+              exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the release tag
+        uses: actions/checkout@v5
+        with:
+          ref: refs/tags/${{ steps.tag.outputs.tag }}
+
+      - name: Check the tag matches version.php
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          RELEASE=$(sed -n "s/^\$plugin->release *= *'\([^']*\)'.*/\1/p" version.php)
+          if [ -z "$RELEASE" ]; then
+              echo "Could not read \$plugin->release from version.php." >&2
+              exit 1
+          fi
+          if [ "${TAG#v}" != "$RELEASE" ]; then
+              echo "Tag $TAG does not match \$plugin->release '$RELEASE' in version.php." >&2
+              exit 1
+          fi
+          echo "Tag $TAG matches release $RELEASE."
+
+      - name: Build the zip
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          ZIP="${COMPONENT}-${TAG}.zip"
+          # git archive honours the export-ignore entries in .gitattributes.
+          git archive --format=zip --prefix="${PLUGIN_DIR}/" -o "$ZIP" "refs/tags/${TAG}"
+          unzip -l "$ZIP" | tail -n 3
+          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      - name: Attach the zip to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: gh release upload "$TAG" "$ZIP" --clobber

@@ -31,7 +31,19 @@ Then, go to [Github releases](https://github.com/verzog/moodle-local_codechecker
 2. If wanted to, add anything important to the description (historically we use to keep description blank).
 3. Press "Publish release".
 
-And that's all, the HEAD commit will be tagged, the release created and we are done.
+Publishing the release runs the "Release zip" workflow (`.github/workflows/release.yml`). It checks that the tag
+ (without the leading `v`) matches `$plugin->release` in `version.php`, builds `local_codechecker-vX.Y.Z.zip` with a
+ `codechecker/` root folder (as Moodle's _Install plugins_ page expects) and attaches it to the release. Check the zip
+ is attached before announcing the release.
+
+Never attach a zip by hand. If the zip is missing or wrong, go to _Actions > Release zip > Run workflow_ and enter
+ the existing tag; it rebuilds and replaces the zip.
+
+Files marked `export-ignore` in `.gitattributes` (`.github/`, `tests/`) are left out of the zip. That uses the
+ `.gitattributes` of the tagged commit, so tags made before it was added still include them.
+
+GitHub's automatic "Source code (zip)" has the wrong root folder (`moodle-local_codechecker-X.Y.Z/`). Anyone using it
+ must enter `codechecker` in _Install plugins > Show more... > Rename the root directory_.
 
 # Moodle plugins directory
 The `local_codechecker` entry in the plugins directory belongs to the upstream Moodle HQ project, not this fork, so
