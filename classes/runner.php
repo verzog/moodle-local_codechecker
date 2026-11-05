@@ -181,9 +181,11 @@ class runner extends \PHP_CodeSniffer\Runner {
                 try {
                     $this->processFile($file);
                 } catch (\PHP_CodeSniffer\Exceptions\DeepExitException $e) {
-                    echo $e->getMessage();
+                    // On the web page the message lands in HTML, so escape it; keep it as plain text on the CLI.
+                    echo CLI_SCRIPT ? $e->getMessage() : s($e->getMessage());
                     return $e->getCode();
                 } catch (\Exception $e) {
+                    // Security-lint: ignore S5 (stored in the phpcs XML report; renderer::problem_message() applies s()).
                     $error = get_string('error_processing', 'local_codechecker', $e->getMessage());
                     $file->addErrorOnLine($error, 1, 'Internal.Exception');
                 }
