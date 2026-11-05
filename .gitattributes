@@ -8,3 +8,10 @@ tests/fixtures/crlf.csv -text
 # - Bundled third-party code is kept byte-for-byte as released upstream
 #   (it includes its own CRLF and mixed-ending test files).
 vendor/** -text
+
+# Kept out of the release zip built by .github/workflows/release.yml (git
+# archive) and out of GitHub's automatic "Source code" downloads.
+/.github export-ignore
+/tests export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
