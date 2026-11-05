@@ -35,6 +35,9 @@ namespace local_codechecker;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class runner extends \PHP_CodeSniffer\Runner {
+    /** @var bool whether the audit checks run as well as the Moodle standard. */
+    protected $audit = false;
+
     /**
      * Create an instance of the runner.
      */
@@ -107,6 +110,36 @@ class runner extends \PHP_CodeSniffer\Runner {
     }
 
     /**
+     * Also write an XML report to a file, keeping the reports already configured.
+     *
+     * Used by the command line, which prints the full report and also needs the XML
+     * report to build the audit checklist.
+     *
+     * @param string $reportfile file path to XML report.
+     */
+    public function add_reportfile(string $reportfile): void {
+        $this->config->reports = $this->config->reports + [report::class => $reportfile];
+    }
+
+    /**
+     * Set if the audit checks (the MoodleAudit standard) run as well as the Moodle standard.
+     *
+     * @param bool $audit true to run the audit checks.
+     */
+    public function set_audit(bool $audit): void {
+        $this->audit = $audit;
+    }
+
+    /**
+     * Get the full path of the MoodleAudit standard bundled with this plugin.
+     *
+     * @return string the folder holding the standard's ruleset.xml.
+     */
+    public static function audit_standard(): string {
+        return dirname(__DIR__) . '/standards/MoodleAudit';
+    }
+
+    /**
      * Set if the interactive checking mode should be enabled or not.
      *
      * @param bool $interactive If true, will stop after each file with errors and wait for user input.
@@ -119,8 +152,7 @@ class runner extends \PHP_CodeSniffer\Runner {
      * Initialise the runner, invoked by run().
      */
     public function init() {
-
-        $this->config->standards = ['moodle'];
+        $this->config->standards = $this->audit ? ['moodle', self::audit_standard()] : ['moodle'];
         $this->config->extensions = ['php' => 'PHP'];
 
         // Added all our customizations, finally call parent.

@@ -19,7 +19,7 @@ Feature: Codechecker UI works as expected
       | index2.php                                         | Invalid path index2.php            | Files found: 1 |
       | local/codechecker/version.php                      | Well done!                         | Invalid path   |
       | local/codechecker/tests/                           | checker/tests/locallib_test.php    | Invalid path   |
-      | local/codechecker/tests/                           | Files found: 10                    | Invalid path   |
+      | local/codechecker/tests/                           | Files found: 11                    | Invalid path   |
       | local/codechecker/tests/locallib_test.php          | Well done!                         | Invalid path   |
       | local/codechecker/tests/fixtures/behat/problem.php | Files found: 1                     | Invalid path   |
       | local/codechecker/tests/fixtures/behat/problem.php | Total: 5 error(s) and 1 warning(s) | Well done!     |
@@ -39,8 +39,8 @@ Feature: Codechecker UI works as expected
 
     Examples:
       | path                     | exclude            | seen                          | notseen      |
-      | local/codechecker/tests  | */tests/fixtures/* | Files found: 2                | Invalid path |
-      | local/codechecker/tests/ | *one*, *moodle_*   | Files found: 9                | Invalid path |
+      | local/codechecker/tests  | */tests/fixtures/* | Files found: 3                | Invalid path |
+      | local/codechecker/tests/ | *one*, *moodle_*   | Files found: 10               | Invalid path |
       | local/codechecker/tests  | */tests/fixtures/* | locallib_test.php             | problem.php  |
       | local/codechecker/tests/ | *moodle_*          | not found at first line       | moodle_php   |
       | local/codechecker/tests/ | *moodle_*          | fixtures/behat/phpcompat      | /moodle_php  |
@@ -97,4 +97,19 @@ Feature: Codechecker UI works as expected
     And I set the field "Display phpcs standard associated with a problem" to "0"
     And I press "Check code"
     And I should not see "moodle.Files.BoilerplateComment.NotAtFirstLine"
+    And I log out
+
+  Scenario: Run the optional audit checks and show the audit checklist
+    Given I log in as "admin"
+    And I navigate to "Development > Code checker" in site administration
+    And I set the field "Path(s) to check" to "local/codechecker/version.php"
+    When I press "Check code"
+    Then I should see "Well done!"
+    And I should not see "Audit checklist"
+    And I set the field "Run audit checks (security, code quality and performance)" to "1"
+    And I press "Check code"
+    And I should see "Audit checklist"
+    And I should see "Needs manual review"
+    And I should see "Not run: check a plugin's root folder"
+    And I should see "Well done!"
     And I log out

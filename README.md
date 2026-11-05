@@ -107,6 +107,34 @@ any other inline comment (it must start with a capital letter and its
 last line must end with a full stop), exactly as ``moodle-plugin-ci
 phpcs`` does in CI with the boilerplate sniff excluded.
 
+Audit checks
+------------
+
+Tick **Run audit checks (security, code quality and performance)** on
+the check form (or pass ``--audit`` to ``run.php``) to run extra checks
+on top of the Moodle coding style and show the audit checklist: every
+security (S0 to S21), code quality (Q1 to Q8) and performance (P1 to
+P4) check, how it is checked, and its result.
+
+- **Automatic and partly automatic checks** are done by the bundled
+  ``MoodleAudit`` PHP_CodeSniffer standard (``standards/MoodleAudit``)
+  and appear in the normal file results. Each message starts with its
+  check ID, for example ``[S3] Direct access to $_GET``. Partly
+  automatic checks find the clear cases only, so still review the rest.
+- **Plugin-level checks** (privacy provider, third-party library
+  declarations, tests, ``db/uninstall.php`` and README) run when you
+  check a plugin's root folder, the one holding ``version.php``. They
+  confirm that files are present, not their quality.
+- **Moodle coding style checks** that already cover an item (login
+  checks, the ``MOODLE_INTERNAL`` guard and docblocks) are counted
+  against it.
+- **Manual review** items are listed so nothing is forgotten.
+
+Most audit findings are warnings, so keep **Include warnings** ticked.
+A justified ``PARAM_RAW`` is not reported when a comment on the same
+line, or the line above, explains it. The audit is off by default, so
+a normal check still matches ``moodle-plugin-ci phpcs`` in CI.
+
 We hope you find this tool useful. Feel free to enhance it! Also, you can
 report any idea or bug using GitHub's issues and pull requests, thanks!
 

@@ -43,3 +43,12 @@
 #page-admin-local-codechecker-index .local_codechecker_results h3 :visited {
     color: inherit;
 }
+#page-admin-local-codechecker-index .local_codechecker_audit .auditresult.auditfail {
+    color: #600;
+}
+#page-admin-local-codechecker-index .local_codechecker_audit .auditresult.auditwarning {
+    color: #960;
+}
+#page-admin-local-codechecker-index .local_codechecker_audit .auditresult.auditpass {
+    color: #060;
+}

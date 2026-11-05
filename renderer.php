@@ -110,6 +110,58 @@ class local_codechecker_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render the audit checklist: every check, how it is checked and its result.
+     *
+     * @param array $rows checklist rows from \local_codechecker\audit\checklist::rows().
+     * @param bool $includewarnings whether warnings were included in the run.
+     * @return string HTML to output.
+     */
+    public function audit_checklist(array $rows, bool $includewarnings): string {
+        $output = html_writer::start_tag('div', ['class' => 'local_codechecker_audit']);
+        $output .= html_writer::tag('h2', get_string('auditchecklist', 'local_codechecker'));
+        if (!$includewarnings) {
+            $output .= $this->output->notification(get_string('auditnowarnings', 'local_codechecker'), 'warning');
+        }
+
+        $group = null;
+        $table = null;
+        foreach ($rows as $row) {
+            if ($row['group'] !== $group) {
+                if ($table) {
+                    $output .= html_writer::table($table);
+                }
+                $group = $row['group'];
+                $output .= html_writer::tag('h3', get_string('auditgroup_' . $group, 'local_codechecker'));
+                $table = new html_table();
+                $table->attributes['class'] = 'generaltable auditchecklist';
+                $table->head = [
+                    get_string('auditcolumn_id', 'local_codechecker'),
+                    get_string('auditcolumn_check', 'local_codechecker'),
+                    get_string('auditcolumn_method', 'local_codechecker'),
+                    get_string('auditcolumn_result', 'local_codechecker'),
+                ];
+            }
+            $results = array_map(function ($result) {
+                return html_writer::div(s($result));
+            }, $row['results']);
+            $resultcell = new html_table_cell(implode('', $results));
+            $resultcell->attributes['class'] = 'auditresult audit' . $row['status'];
+            $table->data[] = new html_table_row([
+                html_writer::tag('strong', s($row['id'])),
+                s($row['description']),
+                s($row['method']),
+                $resultcell,
+            ]);
+        }
+        if ($table) {
+            $output .= html_writer::table($table);
+        }
+
+        $output .= html_writer::end_tag('div');
+        return $output;
+    }
+
+    /**
      * Render the whole report to html.
      *
      * @param SimpleXMLElement $xml structure containing all the information to be rendered.

@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026100900;
-$plugin->release   = '5.3.3';
+$plugin->version   = 2026110500;
+$plugin->release   = '5.3.4';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->requires  = 2025041400; // Moodle 5.0 release and upwards (PHP 8.2 floor).
 $plugin->supported = [500, 503]; // Moodle 5.0 to 5.3 LTS, matching the CI matrix.
