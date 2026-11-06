@@ -19,7 +19,7 @@ jobs:
       contents: read
     env:
       TZ: Australia/Sydney
-      SECURITY_CI_REF: v1.2.1  # Pin a tag; bump deliberately.
+      SECURITY_CI_REF: v1.2.2  # Pin a tag; bump deliberately.
     steps:
       - name: Check out plugin
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -96,12 +96,12 @@ jobs:
           - {moodle-branch: 'MOODLE_503_STABLE', php: '8.4', database: 'pgsql'}
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           path: plugin
 
       - name: Setup PHP ${{ matrix.php }}
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962  # 2.40.0
         with:
           php-version: ${{ matrix.php }}
           extensions: ${{ matrix.extensions }}
