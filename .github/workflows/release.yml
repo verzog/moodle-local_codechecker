@@ -5,9 +5,12 @@
 #   2. security-lint reports nothing and OSV finds no known vulnerabilities in lockfiles,
 #   3. tests/release/<tag>.md exists, is fully ticked and says "Result: PASS".
 # It then attaches the installable zip, its SHA-256 checksum and the test record to the release.
-# If a gate fails: fix on main, then re-run this workflow (never attach files by hand).
-# "Run workflow" by hand rebuilds the files for an existing tag; the same gates apply, so a tag
-# released before the gate (no tests/release/<tag>.md) can't be rebuilt this way.
+# The gates check the code at the tag, so a fix merged to main afterwards is not in it. If a gate
+# fails because of the code or the record, delete the release and its tag (nothing was attached),
+# fix on main and publish again (see TESTING.md). Never attach files by hand.
+# "Run workflow" by hand re-runs this for an existing tag, after a temporary failure or to rebuild
+# the files; the same gates apply, so a tag released before the gate (no tests/release/<tag>.md)
+# can't be rebuilt this way.
 
 name: Release zip
 
@@ -32,6 +35,14 @@ jobs:
       TZ: Australia/Sydney
       SECURITY_CI_REF: v1.2.2  # Same pin as moodle-ci.yml.
     steps:
+      - name: Check the tag format
+        # A hand-typed "Run workflow" tag must look like a release tag.
+        run: |
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Release tag '$TAG' is not of the form vX.Y.Z."
+            exit 1
+          fi
+
       - name: Check out the release tag
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:

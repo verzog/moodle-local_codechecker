@@ -1,8 +1,9 @@
 # Release test record — local_codechecker vX.Y.Z
 
 Copy this file to `tests/release/vX.Y.Z.md` (same name as the release tag), fill it in, and merge it
-with the `version.php` bump. The release workflow refuses to build the zip until every box is ticked
-and the result is PASS. Tick an item that does not apply and write `N/A: <reason>` after it.
+with the `version.php` bump. The "Release zip" workflow refuses to build the zip until every box is
+ticked and the result is PASS. Tick an item that does not apply and write `N/A: <reason>` after it.
+See `TESTING.md` for why each check is here.
 
 Date: DD/MM/YYYY
 Tester:
@@ -11,55 +12,58 @@ Result: FAIL
 
 ## 1. Automated (CI)
 
-- [ ] CI green on the release commit on the plugin repo's `main` (paste the run link):
-- [ ] security-lint: 0 findings.
-- [ ] OSV check: no known vulnerabilities; each library it listed as "check by hand" looked up on its
-      advisories page (list them, or "none"):
+- [ ] CI green on the release commit on `main` (paste the run link):
+- [ ] security-lint: 0 findings (the `security` job).
+- [ ] OSV check: no known vulnerabilities; no library listed as "check by hand" (if one is, look up
+      its advisories and list it here):
 - [ ] New `Security-lint: ignore` suppressions since the previous release reviewed (list each, or "none"):
       `git diff <previous tag>..HEAD | grep -n "Security-lint: ignore"`
-- [ ] PHPUnit security tests present and passing: output safety, forms/access, privacy (query scaling and
-      events don't apply; see TESTING.md).
-- [ ] Every new loop over site data, auditable action, adhoc task, form, web service and template since the
-      previous release has a row in the matching test's data provider.
+- [ ] PHPUnit and Behat passing on every Moodle 5.0–5.3 cell, including the security tests: output safety,
+      forms/access, privacy (query scaling and events don't apply; see TESTING.md).
+- [ ] Every new output path, form and adhoc task since the previous release has a row in the matching
+      test's data provider.
+- [ ] Bundled `vendor/` changed since the previous release? If so, `thirdpartylibs.xml` versions
+      match `composer.lock` and `readme_moodle.txt` is updated (or "unchanged"):
 
-## 2. Access, logic and requests (S0, S1, S2, S8, S13)
+## 2. Access and logic (S0, S1, S2, S8)
 
-- [ ] Every change to login, capability, group or "who can see this" logic read line by line by someone other
-      than the author (or re-read the next day): conditions, return values, early exits (S0).
-- [ ] Each new or changed page/web service opened as: admin, manager, editing teacher, teacher, student, guest,
-      logged out. Only the intended roles get in; others see an error, not data.
-- [ ] Each state-changing action checked in the browser network tab: it is a POST with a sesskey.
-- [ ] Pasting the action's URL (GET) into the address bar changes nothing.
-- [ ] Every bulk or destructive action shows a confirmation naming what will happen ("Yes, delete 12 courses")
-      and its capability has RISK_DATALOSS (S13).
+- [ ] Every change to path handling, access checks or output escaping read line by line by someone
+      other than the author (or re-read the next day): conditions, return values, early exits (S0).
+- [ ] *Site administration → Development → Code checker* opened as: admin (works); manager, teacher,
+      student, guest and logged out (each refused, no results shown).
+- [ ] Running a check from the form is a POST with a sesskey (browser network tab). The GET form of
+      the URL only runs a read-only check and changes nothing (S8).
 
-## 3. Hostile input (S3, S5, S10)
+## 3. Paths and hostile input (S3, S5)
 
-Payloads: `<</style/style><script>alert(1)</script>` · `<img src=x onerror=alert(1)>` ·
-`"><svg onload=alert(1)>` · `javascript:alert(1)` · `JaVaScRiPt:alert(1)`
+Path payloads: `../../config.php` · `/etc/passwd` · `local/codechecker/../../../` · `C:\Windows` ·
+an empty line · a path to a file that does not exist.
 
-- [ ] Each payload entered in every new or changed free-text field, URL field and admin setting; no alert fires
-      on save, on view, in the editor, in modals or in exports.
-- [ ] Data from external systems (iMIS, CSV imports, APIs) tested with the same payloads in names and messages.
+Content payloads: `<script>alert(1)</script>` · `<img src=x onerror=alert(1)>` · `"><svg onload=alert(1)>`
+
+- [ ] Each path payload in the path box and in the exclude box: refused with the "invalid path"
+      message or ignored; nothing outside the Moodle code tree is read or shown.
+- [ ] A test plugin file containing each content payload (in a comment, a string and a filename) is
+      checked: the source lines and messages show the payload as text; no alert fires.
+- [ ] Same with *Run audit checks (security, code quality and performance)* ticked, and with
+      *Display phpcs standard associated with a problem* ticked.
 
 ## 4. Privacy (S17)
 
-- [ ] Admin > Users > Privacy and policies > Data requests: export for a test learner includes this plugin's data.
-- [ ] Delete request for that learner removes the data and any queued tasks carrying it.
-- [ ] Privacy metadata (`lang` strings, `get_metadata()`) matches what the plugin now stores or sends.
+- [ ] The plugin still stores no personal data, so `classes/privacy/provider.php` stays a
+      `null_provider` (or the provider and its strings were updated to match).
 
-## 5. Performance (P1, P3, P4)
+## 5. Performance (P3)
 
-- [ ] New or changed bulk paths run against a large dataset (at least 1,000 rows/users/courses; record sizes
-      and times here):
-- [ ] No request takes more than 5 seconds; slow work is queued as an adhoc task.
+- [ ] A large check on the web page (for example all of `mod/assign` or `lib/`, with and without
+      audit checks), with the time it took (record the path and seconds):
+- [ ] The same check from the CLI (`php local/codechecker/run.php <path>`) completes.
 
-## 6. Upgrade, backup and compatibility
+## 6. Upgrade and compatibility
 
-- [ ] Upgrade from the previous release on a copy of production data; Notifications page shows no errors.
-- [ ] Backup and restore of a course using the plugin (if it stores course data).
+- [ ] Upgrade from the previous release; the Notifications page shows no errors.
 - [ ] Spot-checked on the lowest (5.0 / PHP 8.2) and highest (5.3 / PHP 8.4) supported versions.
-- [ ] AU spelling, `userdate()` dates (DD/MM/YYYY) and AUD amounts in new UI text.
+- [ ] AU spelling and `userdate()` dates (DD/MM/YYYY) in any new UI text.
 
 ## 7. External audit
 
@@ -71,5 +75,7 @@ Payloads: `<</style/style><script>alert(1)</script>` · `<img src=x onerror=aler
 
 ## 8. Sign-off
 
-- [ ] Marketplace/listing description, README requirements and `$plugin->supported` still match.
+- [ ] The installable zip from a test build has a `codechecker/` root and no `.github/`, `tests/`,
+      `TESTING.md` or `CLAUDE.md`.
+- [ ] README requirements, `$plugin->supported` and any listing description still match.
 - [ ] Result line above changed to `Result: PASS`.
