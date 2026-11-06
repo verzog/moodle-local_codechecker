@@ -11,6 +11,47 @@ env:
   TZ: Australia/Sydney
 
 jobs:
+  # Security, performance and unused-code checks from verzog/moodle-security-ci. Needs no Moodle install,
+  # so it fails in about a minute. Bump SECURITY_CI_REF deliberately, copying any new action pins with it.
+  security:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      TZ: Australia/Sydney
+      SECURITY_CI_REF: v1.2.1  # Pin a tag; bump deliberately.
+    steps:
+      - name: Check out plugin
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          path: plugin
+
+      - name: Set up PHP (lowest supported)
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962  # 2.40.0
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer
+
+      - name: Fetch moodle-security-ci
+        run: git clone --depth 1 --branch "$SECURITY_CI_REF" https://github.com/verzog/moodle-security-ci.git security-ci
+
+      - name: Security lint
+        if: ${{ !cancelled() }}
+        run: php security-ci/bin/security-lint.php --annotate-prefix=plugin/ plugin
+
+      - name: Known vulnerabilities in third-party code (OSV)
+        if: ${{ !cancelled() }}
+        run: bash security-ci/bin/osv-check.sh plugin
+
+      - name: Unused code (PHPMD, blocking)
+        if: ${{ !cancelled() }}
+        run: |
+          mkdir -p tools
+          composer require --quiet --no-interaction --working-dir=tools phpmd/phpmd:^2.15
+          tools/vendor/bin/phpmd plugin text security-ci/config/phpmd-unused.xml \
+            --exclude '*/tests/*,*/vendor/*,*/amd/*,*/node_modules/*'
+
   test:
     runs-on: ubuntu-24.04
 
@@ -109,11 +150,6 @@ jobs:
       - name: PHP Lint
         if: ${{ !cancelled() && steps.install.conclusion == 'success' }}
         run: moodle-plugin-ci phplint
-
-      - name: PHP Mess Detector
-        continue-on-error: true # This step will show errors but will not fail
-        if: ${{ !cancelled() && steps.install.conclusion == 'success' }}
-        run: moodle-plugin-ci phpmd
 
       - name: Moodle Code Checker
         if: ${{ !cancelled() && steps.install.conclusion == 'success' }}
