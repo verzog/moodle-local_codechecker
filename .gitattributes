@@ -16,3 +16,4 @@ vendor/** -text
 /.gitattributes export-ignore
 /.gitignore export-ignore
 /CLAUDE.md export-ignore
+/TESTING.md export-ignore
