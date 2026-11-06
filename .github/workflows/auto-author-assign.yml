@@ -12,4 +12,4 @@ jobs:
     name: Auto assign PR
     runs-on: ubuntu-latest
     steps:
-      - uses: toshimaru/auto-author-assign@v2.1.0
+      - uses: toshimaru/auto-author-assign@ebd30f10fb56e46eb0759a14951f36991426fed0  # v2.1.0
