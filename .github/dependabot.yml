@@ -8,3 +8,10 @@ updates:
       - dependency-name: "php"
       - dependency-name: "moodlehq/moodle-cs"
         update-types: ["version-update:semver-major"]
+  # Keeps the commit-pinned GitHub Actions in .github/workflows/ up to date (it updates the SHA and the
+  # version comment together). The security job's pins come from moodle-security-ci; bump them with
+  # SECURITY_CI_REF rather than on their own.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
