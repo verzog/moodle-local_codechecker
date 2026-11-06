@@ -17,7 +17,8 @@ Result: FAIL
       advisories page (list them, or "none"):
 - [ ] New `Security-lint: ignore` suppressions since the previous release reviewed (list each, or "none"):
       `git diff <previous tag>..HEAD | grep -n "Security-lint: ignore"`
-- [ ] PHPUnit security tests present and passing: query scaling, events, privacy, output safety, forms/access.
+- [ ] PHPUnit security tests present and passing: output safety, forms/access, privacy (query scaling and
+      events don't apply; see TESTING.md).
 - [ ] Every new loop over site data, auditable action, adhoc task, form, web service and template since the
       previous release has a row in the matching test's data provider.
 

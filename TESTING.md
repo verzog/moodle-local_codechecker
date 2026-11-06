@@ -25,13 +25,24 @@ task, form, web service or template is not finished until it has a row here and 
 
 | Test file | Covers | Entries |
 |---|---|---|
+| `tests/output_safety_test.php` | Checked code stays inert (S5/S10) | File list, invalid path, audit results, full report |
+| `tests/forms_and_access_test.php` | Typed form fields; admins only (S4/S2) | Check form; admin page needs `moodle/site:config` |
+| `tests/privacy_test.php` | Null provider has a reason; every adhoc task is classified (S17) | No tasks today |
 | `tests/locallib_test.php` | The checker's own helpers | Existing unit tests |
 | `tests/audit_test.php` | The MoodleAudit phpcs standard | Existing unit tests |
 
-Not added yet (moodle-security-ci adoption step 5): the `query_scaling`, `events`, `privacy`,
-`output_safety` and `forms_and_access` templates from moodle-security-ci's `templates/tests/`. Until
-they are, the release record's "PHPUnit security tests present and passing" item is ticked with
-`N/A: <reason>` or the tests are added first.
+Not needed here, from moodle-security-ci's five templates:
+
+- `query_scaling_test.php` (P1/P3): the plugin reads no database rows. It loops over files on disk, not site
+  data. Add it if a loop over site data appears.
+- `events_test.php` (S12): the plugin changes no data. It reads code and shows a report, so there is no
+  auditable action to log. Add it with the first create, update, delete or export action.
+
+`output_safety_test` feeds the report the lines of `tests/fixtures/hostile.txt`, with the same payloads as its
+phpcs messages and sniff names. `forms_and_access_test` also checks that a student, teacher and manager are refused.
+
+The three that apply keep a new risk from going unnoticed: a new output path needs a payload row, a new
+form needs a provider row, and a new adhoc task fails `privacy_test` until it is classified.
 
 ## Manual checks every release
 
