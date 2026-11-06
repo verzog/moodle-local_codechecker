@@ -1,3 +1,19 @@
+Changes in version 5.3.5 (20261106) - Security fixes and release zip
+-------------------------------------------------------
+- Security: a PHP_CodeSniffer error that stops a run (DeepExitException)
+  was echoed into the web page without escaping. It is now escaped with
+  s() on the web page and stays plain text on the command line.
+- The PARAM_RAW path list on the check form is now marked as a reviewed
+  exception for moodle-security-ci (each line is cleaned with PARAM_PATH).
+- New "Release zip" GitHub workflow: publishing a release builds
+  local_codechecker-<tag>.zip with a codechecker/ root folder and attaches
+  it. .github/, tests/, .gitattributes and .gitignore are left out of the
+  zip, so this is the first release with a clean zip.
+- CI (not in the zip): a blocking moodle-security-ci job (security lint,
+  OSV known-vulnerability check, unused-code check) replaces the old
+  non-blocking PHP Mess Detector step. Every GitHub Action is pinned to a
+  commit, and Dependabot now proposes Action updates.
+
 Changes in version 5.3.4 (20261105) - Audit checks
 -------------------------------------------------------
 - New opt-in "Run audit checks (security, code quality and performance)"
