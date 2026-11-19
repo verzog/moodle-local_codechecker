@@ -100,8 +100,11 @@ class checklist {
             'P2' => [self::MANUAL],
             'P3' => [self::MANUAL],
             'P4' => [self::AUTO],
+            // Moodle Plugins directory review items, which are not on the Catalyst checklist.
+            'R1' => [self::PARTIAL],
+            'R2' => [self::PARTIAL],
         ];
-        $groups = ['S' => 'security', 'Q' => 'quality', 'P' => 'performance'];
+        $groups = ['S' => 'security', 'Q' => 'quality', 'P' => 'performance', 'R' => 'review'];
         $result = [];
         foreach ($checks as $id => $check) {
             $result[$id] = [
