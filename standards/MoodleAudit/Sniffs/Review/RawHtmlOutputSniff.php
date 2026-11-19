@@ -34,8 +34,10 @@ use PHP_CodeSniffer\Sniffs\Sniff;
  * Checks page scripts (files that include config.php, other than CLI scripts):
  * every echo or print whose output includes HTML markup in a string, or
  * html_writer output, counts as a raw HTML write, as does HTML outside the PHP
- * tags. Output API calls such as echo $OUTPUT->header() do not count. A page with
- * any raw HTML writes gets one finding, at the first, giving the number of writes.
+ * tags. Output API calls such as echo $OUTPUT->header() do not count, and neither
+ * does anything passed into a call (such as HTML in a template's context); markup
+ * concatenated onto a call's result still does. A page with any raw HTML writes
+ * gets one finding, at the first, giving the number of writes.
  * Classes, renderers and test code are not checked.
  *
  * @package    local_codechecker
@@ -109,6 +111,13 @@ class RawHtmlOutputSniff implements Sniff {
                 $next = $file->findNext(Audit::empty_tokens(), $i + 1, null, true);
                 if ($next !== false && $tokens[$next]['code'] === T_DOUBLE_COLON) {
                     return true;
+                }
+            }
+            // Skip a call's arguments: what is passed in (a template's context, say) is not output.
+            if ($tokens[$i]['code'] === T_OPEN_PARENTHESIS && isset($tokens[$i]['parenthesis_closer'])) {
+                $previous = $file->findPrevious(Audit::empty_tokens(), $i - 1, null, true);
+                if ($previous !== false && in_array($tokens[$previous]['code'], [T_STRING, T_VARIABLE], true)) {
+                    $i = $tokens[$i]['parenthesis_closer'];
                 }
             }
         }

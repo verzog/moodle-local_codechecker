@@ -34,7 +34,9 @@ use PHPCSUtils\Utils\PassedParameters;
  *
  * Reports $DB calls that name the config or config_plugins table, either as the
  * table argument (get_record('config_plugins', ...), record_exists('config', ...))
- * or as {config_plugins} / {config} in the SQL of a *_sql or *_select call.
+ * or as {config_plugins} / {config} in the SQL argument of a *_sql or *_select call.
+ * Only those arguments are read, so the names appearing as data (a bound parameter
+ * or a record value) are not reported. Named arguments are supported.
  * get_config(), set_config() and unset_config() do the same and keep the config
  * cache in step. Test code is skipped.
  *
@@ -66,8 +68,8 @@ class ConfigTableSniff implements Sniff {
         if ($call === null || Audit::is_test_file($file)) {
             return;
         }
-        [, $method] = $call;
-        $table = self::table_argument($file, $method) ?? self::table_in_sql($file, $method);
+        [$name, $method] = $call;
+        $table = self::table_argument($file, $method) ?? self::table_in_sql($file, $name, $method);
         if ($table !== null) {
             $file->addWarning(Audit::message('configtable', $table), $pointer, 'R1');
         }
@@ -81,7 +83,8 @@ class ConfigTableSniff implements Sniff {
      * @return string|null the table name, or null.
      */
     protected static function table_argument(File $file, int $method): ?string {
-        $first = PassedParameters::getParameter($file, $method, 1);
+        // Every $DB method that takes a table takes it first, as $table.
+        $first = PassedParameters::getParameter($file, $method, 1, 'table');
         if ($first === false) {
             return null;
         }
@@ -90,24 +93,32 @@ class ConfigTableSniff implements Sniff {
     }
 
     /**
-     * The config table referenced as {name} in any string argument of the call, if any.
+     * The config table referenced as {name} in the SQL argument of a *_sql or *_select call, if any.
      *
      * @param File $file the file being checked.
+     * @param string $name the method name, in lower case.
      * @param int $method position of the method name.
      * @return string|null the table name, or null.
      */
-    protected static function table_in_sql(File $file, int $method): ?string {
+    protected static function table_in_sql(File $file, string $name, int $method): ?string {
+        if (!isset(Audit::DB_SQL_METHODS[$name])) {
+            return null;
+        }
+        // The SQL argument is $sql in the *_sql methods and execute(), and $select in the *_select ones.
+        $paramname = (substr($name, -4) === '_sql' || $name === 'execute') ? 'sql' : 'select';
+        $parameter = PassedParameters::getParameter($file, $method, Audit::DB_SQL_METHODS[$name], $paramname);
+        if ($parameter === false) {
+            return null;
+        }
         $tokens = $file->getTokens();
         $strings = [T_CONSTANT_ENCAPSED_STRING, T_DOUBLE_QUOTED_STRING, T_HEREDOC, T_NOWDOC];
-        foreach (PassedParameters::getParameters($file, $method) as $parameter) {
-            for ($i = $parameter['start']; $i <= $parameter['end']; $i++) {
-                if (!in_array($tokens[$i]['code'], $strings, true)) {
-                    continue;
-                }
-                foreach (self::TABLES as $table) {
-                    if (strpos($tokens[$i]['content'], '{' . $table . '}') !== false) {
-                        return $table;
-                    }
+        for ($i = $parameter['start']; $i <= $parameter['end']; $i++) {
+            if (!in_array($tokens[$i]['code'], $strings, true)) {
+                continue;
+            }
+            foreach (self::TABLES as $table) {
+                if (strpos($tokens[$i]['content'], '{' . $table . '}') !== false) {
+                    return $table;
                 }
             }
         }

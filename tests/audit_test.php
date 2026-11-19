@@ -240,6 +240,31 @@ final class audit_test extends \advanced_testcase {
                 [],
             ],
             'R2 not checked outside pages' => ['classes/output/demo.php', "echo html_writer::tag('p', 'x');\n", []],
+            'R1 names as data are not SQL' => [
+                'classes/demo.php',
+                "\$DB->get_records_sql('SELECT * FROM {user} WHERE username = ?', ['{config_plugins}']);\n" .
+                    "\$DB->set_field('user', 'description', '{config}', ['id' => 1]);\n",
+                [],
+            ],
+            'R1 named arguments' => [
+                'classes/demo.php',
+                "\$DB->get_record(table: 'user', conditions: ['id' => 1]);\n" .
+                    "\$DB->get_record(table: 'config_plugins', conditions: ['plugin' => 'x']);\n" .
+                    "\$DB->get_records_select(select: 'id IN (SELECT id FROM {config})', table: 'user');\n",
+                ['R1', 'R1'],
+            ],
+            'R2 HTML passed into a template' => [
+                'page.php',
+                "require_once(__DIR__ . '/../../config.php');\n" .
+                    "echo \$OUTPUT->render_from_template('local_demo/card', ['body' => '<p>x</p>']);\n",
+                [],
+            ],
+            'R2 markup added to rendered output' => [
+                'page.php',
+                "require_once(__DIR__ . '/../../config.php');\n" .
+                    "echo \$OUTPUT->render_from_template('local_demo/card', []) . '<hr>';\n",
+                ['R2'],
+            ],
         ];
     }
 

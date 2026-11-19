@@ -4,13 +4,16 @@ Changes in version 5.3.6 (20261119) - Plugin directory review checks
   for findings the Plugins directory reviewers raise that are not on the
   Catalyst checklist. Catalyst's S, Q and P numbering is unchanged.
 - R1 (partly automatic): $DB calls on the config or config_plugins
-  tables, named as the table or as {config} / {config_plugins} in SQL.
-  Use get_config(), set_config() and unset_config() instead.
+  tables, named as the table argument or as {config} / {config_plugins}
+  in the SQL argument (names passed as data are not reported; named
+  arguments are supported). Use get_config(), set_config() and
+  unset_config() instead.
 - R2 (partly automatic): page scripts (files that include config.php,
   other than CLI scripts) that echo or print HTML markup or html_writer
   output. One finding per page, giving the number of writes. Output API
-  calls such as $OUTPUT->render_from_template() do not count. Classes
-  and renderers are not checked.
+  calls such as $OUTPUT->render_from_template() do not count, nor does
+  anything passed into a call (such as HTML in a template's context).
+  Classes and renderers are not checked.
 
 Changes in version 5.3.5 (20261106) - Security fixes and release zip
 -------------------------------------------------------
