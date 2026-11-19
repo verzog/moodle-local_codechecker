@@ -220,6 +220,26 @@ final class audit_test extends \advanced_testcase {
             'P4 sleep on a page' => ['page.php', "sleep(1);\n", ['P4']],
             'P4 sleep in a task' => ['classes/task/demo.php', "sleep(1);\n", []],
             'P4 sleep in a CLI script' => ['cli/demo.php', "define('CLI_SCRIPT', true);\nsleep(1);\n", []],
+            'R1 config tables' => [
+                'classes/demo.php',
+                "\$DB->record_exists('config_plugins', ['plugin' => 'local_old']);\n" .
+                    "\$DB->get_records_sql('SELECT name FROM {config} WHERE name = ?', ['x']);\n" .
+                    "\$DB->get_record('user', ['id' => 1]);\n\$x = get_config('local_old', 'version');\n",
+                ['R1', 'R1'],
+            ],
+            'R2 raw HTML on a page' => [
+                'page.php',
+                "require_once(__DIR__ . '/../../config.php');\necho \$OUTPUT->header();\n" .
+                    "echo '<div class=\"card\">';\necho html_writer::tag('p', 'x');\necho \$OUTPUT->footer();\n",
+                ['R2'],
+            ],
+            'R2 page using templates' => [
+                'page.php',
+                "require_once(__DIR__ . '/../../config.php');\necho \$OUTPUT->header();\n" .
+                    "echo \$OUTPUT->render_from_template('local_demo/card', ['n' => '3 < 4']);\necho \$OUTPUT->footer();\n",
+                [],
+            ],
+            'R2 not checked outside pages' => ['classes/output/demo.php', "echo html_writer::tag('p', 'x');\n", []],
         ];
     }
 
@@ -338,9 +358,10 @@ final class audit_test extends \advanced_testcase {
      */
     public function test_checklist_checks(): void {
         $ids = array_keys(checklist::checks());
-        $this->assertCount(34, $ids);
+        $this->assertCount(36, $ids);
         $this->assertSame(['S0', 'S1'], array_slice($ids, 0, 2));
-        $this->assertSame('P4', end($ids));
+        $this->assertSame('R2', end($ids));
+        $this->assertSame('review', checklist::checks()['R1']['group']);
         foreach ($ids as $id) {
             $this->assertNotEmpty(get_string('auditcheck_' . $id, 'local_codechecker'));
         }
@@ -355,6 +376,7 @@ final class audit_test extends \advanced_testcase {
         return [
             'audit sniff' => ['MoodleAudit.Security.Superglobals.S3', 'S3'],
             'unknown audit ID' => ['MoodleAudit.Security.Superglobals.S99', null],
+            'review audit sniff' => ['MoodleAudit.Review.ConfigTable.R1', 'R1'],
             'Moodle internal check' => ['moodle.Files.MoodleInternal.MoodleInternalGlobalState', 'S18'],
             'Moodle login check' => ['moodle.Files.RequireLogin.Missing', 'S1'],
             'Moodle deprecated function' => ['moodle.PHP.DeprecatedFunctions.Deprecated', 'Q8'],
