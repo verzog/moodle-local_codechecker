@@ -5,7 +5,8 @@
     "license": "GPL-3.0-or-later",
     "require": {
         "php": ">=8.2",
-        "moodlehq/moodle-cs": "v3.7.0"
+        "moodlehq/moodle-cs": "^3.9",
+        "squizlabs/php_codesniffer": "^3.13.6"
     },
     "config": {
         "platform": {
