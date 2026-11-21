@@ -10,7 +10,7 @@
     <library>
         <location>vendor/phpcsstandards/phpcsextra</location>
         <name>A collection of code standards for use with PHP_CodeSniffer</name>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
         <license>LGPL</license>
         <licenseversion>3</licenseversion>
     </library>
@@ -24,7 +24,7 @@
     <library>
         <location>vendor/moodlehq/moodle-cs</location>
         <name>Moodle Coding Style</name>
-        <version>v3.7.0</version>
+        <version>v3.9.2</version>
         <license>GPL</license>
         <licenseversion>3</licenseversion>
     </library>

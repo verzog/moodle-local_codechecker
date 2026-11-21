@@ -1,0 +1,178 @@
+name: Moodle Coding Style Tests
+
+on: [push, pull_request]
+
+jobs:
+  phpcs-compatibility:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        phpcs:
+          - ^3
+          - ^4
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v7
+
+      - name: Setup PHP 8.5
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          ini-values: pcov.directory=Standards, error_reporting=-1, display_errors=On
+          coverage: pcov
+          tools: composer
+
+      - name: Install Composer dependencies with PHPCS ${{ matrix.phpcs }}
+        run: composer update --with squizlabs/php_codesniffer:${{ matrix.phpcs }} --no-interaction
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --coverage-clover clover.xml
+
+      - name: Upload coverage
+        if: ${{ !cancelled() && github.repository == 'moodlehq/moodle-cs' }}
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: clover.xml
+          verbose: true
+
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - 8.6
+          - 8.5
+          - 8.4
+          - 8.3
+          - 8.2
+          - 8.1
+          - 8.0
+          - 7.4
+        os:
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - name: Set git to use LF
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
+      - name: Check out repository code
+        uses: actions/checkout@v7
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ matrix.extensions }}
+          ini-values: pcov.directory=Standards, error_reporting=-1, display_errors=On
+          coverage: pcov
+          tools: composer
+
+      - name: Install composer dependencies
+        run: |
+          composer install
+
+      - name: Run phplint
+        if: ${{ !cancelled() }}
+        run: |
+          ./vendor/bin/phplint
+
+      - name: Coding style
+        if: ${{ !cancelled() }}
+        run: ./vendor/bin/phpcs -ps .
+
+      - name: Run phpunit
+        if: ${{ !cancelled() }}
+        run: |
+          ./vendor/bin/phpunit --coverage-text
+
+      - name: Test coverage
+        if: ${{ !cancelled() }}
+        run: ./vendor/bin/phpunit-coverage-check -t 80 clover.xml
+
+      - name: Integration tests
+        if: ${{ !cancelled() && matrix.os == 'ubuntu-latest' }}
+        run: |
+          # There is one failure (exit with error 1, because some are fixable).
+          expectedcode=1
+          vendor/bin/phpcs --standard=moodle Standards/moodle/Tests/fixtures/integration_test_ci.php | tee output.txt
+          exitcode="${PIPESTATUS[0]}"
+          if [[ "${exitcode}" = "${expectedcode}" ]]; then
+              echo "Ok, got expected ${exitcode} exit code."
+          else
+              echo "Error: Expected ${expectedcode}, got ${exitcode} exit code."
+              exit 1
+          fi
+          grep -q  "PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY" output.txt
+
+          # The failure is fixed.
+          expectedcode=0
+          vendor/bin/phpcbf --standard=moodle Standards/moodle/Tests/fixtures/integration_test_ci.php | tee output.txt
+          exitcode="${PIPESTATUS[0]}"
+          if [[ "${exitcode}" = "${expectedcode}" ]]; then
+              echo "Ok, got expected ${exitcode} exit code."
+          else
+              echo "Error: Expected ${expectedcode}, got ${exitcode} exit code."
+              exit 1
+          fi
+          grep -q "A TOTAL OF 1 ERROR WERE FIXED IN 1 FILE" output.txt
+
+          # So, there isn't any failure any more (exit without error, aka, 0)
+          expectedcode=0
+          vendor/bin/phpcs --standard=moodle Standards/moodle/Tests/fixtures/integration_test_ci.php | tee output.txt
+          exitcode="${PIPESTATUS[0]}"
+          if [[ "${exitcode}" = "${expectedcode}" ]]; then
+              echo "Ok, got expected ${exitcode} exit code."
+          else
+              echo "Error: Expected ${expectedcode}, got ${exitcode} exit code."
+              exit 1
+          fi
+
+      - name: Mark cancelled jobs as failed
+        if: ${{ cancelled() }}
+        run: exit 1
+
+  coverage:
+    if: github.repository == 'moodlehq/moodle-cs'
+    name: Code coverage (codecov)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v7
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          ini-values: pcov.directory=Standards, error_reporting=-1, display_errors=On
+          coverage: pcov
+          tools: composer
+
+      - name: Install composer dependencies
+        run: |
+          composer install
+
+      - name: Run phpunit
+        if: ${{ !cancelled() }}
+        run: |
+          ./vendor/bin/phpunit --coverage-clover clover.xml
+
+      - name: Upload coverage
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: clover.xml
+          verbose: true
+
+      - name: Mark cancelled jobs as failed
+        if: ${{ cancelled() }}
+        run: exit 1

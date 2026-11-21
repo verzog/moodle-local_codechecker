@@ -1,0 +1,21 @@
+# Composer stuff
+composer.lock
+composer.phar
+vendor
+
+# PHP_CodeSniffer
+.phpcs.xml
+phpcs.xml
+!phpcs.xml.dist
+
+# PHPUnit
+.phpunit.result.cache
+phpunit.xml
+clover.xml
+.phpunit.cache
+
+# PHPlint
+.phplint.cache
+
+# IDEs and editors
+.vscode

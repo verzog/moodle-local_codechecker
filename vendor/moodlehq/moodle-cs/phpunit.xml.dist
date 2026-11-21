@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="lib/phpunit/phpunit.xsd"
+    beStrictAboutTestsThatDoNotTestAnything="false"
+    bootstrap="Standards/moodle/Tests/bootstrap.php"
+>
+  <testsuites>
+    <testsuite name="Coding Style Test Suite for Moodle 5.x and earlier">
+      <directory suffix="Test.php">Standards/moodle/Tests</directory>
+    </testsuite>
+    <testsuite name="Coding Style Test Suite for Moodle 6.0">
+      <directory suffix="Test.php">Standards/moodle600/Tests</directory>
+    </testsuite>
+  </testsuites>
+  <coverage cacheDirectory=".phpunit.cache/code-coverage" processUncoveredFiles="true">
+    <include>
+        <directory suffix=".php">Standards</directory>
+    </include>
+    <exclude>
+        <directory>Standards/*/Tests</directory>
+    </exclude>
+    <report>
+      <clover outputFile="clover.xml" />
+    </report>
+  </coverage>
+</phpunit>

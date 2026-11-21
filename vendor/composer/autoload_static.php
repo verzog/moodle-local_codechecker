@@ -13,7 +13,7 @@ class ComposerStaticInit574d662ebe51df2403d0358535dbfb75
         ),
         'M' => 
         array (
-            'MoodleHQ\\MoodleCS\\moodle\\' => 25,
+            'MoodleHQ\\MoodleCS\\' => 18,
         ),
     );
 
@@ -22,9 +22,9 @@ class ComposerStaticInit574d662ebe51df2403d0358535dbfb75
         array (
             0 => __DIR__ . '/..' . '/dealerdirect/phpcodesniffer-composer-installer/src',
         ),
-        'MoodleHQ\\MoodleCS\\moodle\\' => 
+        'MoodleHQ\\MoodleCS\\' => 
         array (
-            0 => __DIR__ . '/..' . '/moodlehq/moodle-cs/moodle',
+            0 => __DIR__ . '/..' . '/moodlehq/moodle-cs/Standards',
         ),
     );
 
