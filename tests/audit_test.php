@@ -50,7 +50,7 @@ final class audit_test extends \advanced_testcase {
         require_once($CFG->dirroot . '/local/codechecker/locallib.php');
         autoload_tools();
         if (!class_exists(\MoodleHQ\MoodleCS\moodle\Util\MoodleUtil::class, false)) {
-            require_once($CFG->dirroot . '/local/codechecker/vendor/moodlehq/moodle-cs/moodle/Util/MoodleUtil.php');
+            require_once($CFG->dirroot . '/local/codechecker/vendor/moodlehq/moodle-cs/Standards/moodle/Util/MoodleUtil.php');
         }
         \MoodleHQ\MoodleCS\moodle\Util\MoodleUtil::setMockedComponentMappings(['local_demo' => '/nonexistent/local/demo']);
         $this->resetAfterTest();
