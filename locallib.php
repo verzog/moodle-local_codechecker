@@ -204,7 +204,7 @@ function local_codesniffer_get_ignores($extraignorelist = '') {
     // has been split so any plugin with dependencies can have its own. In order to
     // keep main compatibility with older branches we are doing some
     // conditional coding here.
-    if (file_exists($CFG->dirroot . '/' . $CFG->admin . '/' . 'thirdpartylibs.php')) {
+    if (file_exists($CFG->dirroot . '/admin/thirdpartylibs.php')) {
         // New behavior, distributed XML files, let's look for them.
         $plugintypes = core_component::get_plugin_types();
         foreach ($plugintypes as $type => $ignored) {
@@ -266,7 +266,8 @@ function local_codesniffer_get_ignores($extraignorelist = '') {
     // Ignore any compiled JS and test fixtures.
     $finalpaths['*/amd/build/*'] = 'absolute';
     $finalpaths['*/yui/build/*'] = 'absolute';
-    if (!defined('BEHAT_SITE_RUNNING')) { // We need testing fixtures at hand for testing purposes, heh.
+    // We need testing fixtures at hand for testing purposes, heh.
+    if (!defined('BEHAT_SITE_RUNNING')) {
         $finalpaths['*/tests/fixtures/*'] = 'absolute';
     }
 
