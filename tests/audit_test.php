@@ -265,6 +265,59 @@ final class audit_test extends \advanced_testcase {
                     "echo \$OUTPUT->render_from_template('local_demo/card', []) . '<hr>';\n",
                 ['R2'],
             ],
+            'R3 curl without verification' => [
+                'classes/local/client.php',
+                "function plain() {\n    \$c = new \\curl();\n    \$c->setopt(['CURLOPT_TIMEOUT' => 10]);\n" .
+                    "    return \$c->get('https://api.example.com/');\n}\n" .
+                    "function unqualified() {\n    \$c = new curl();\n    return \$c;\n}\n",
+                ['R3', 'R3'],
+            ],
+            'R3 verification on in another function does not count' => [
+                'classes/local/client.php',
+                "function a() {\n    \$c = new \\curl();\n    return \$c;\n}\n" .
+                    "function b() {\n    \$c = new \\curl();\n    \$c->setopt(['CURLOPT_SSL_VERIFYPEER' => true]);\n}\n",
+                ['R3'],
+            ],
+            'R3 every way of switching verification on' => [
+                'classes/local/client.php',
+                "function setopt() {\n    \$c = new \\curl();\n    \$c->setopt(['CURLOPT_SSL_VERIFYPEER' => true]);\n}\n" .
+                    "function request() {\n    \$c = new \\curl();\n" .
+                    "    return \$c->get('u', [], ['CURLOPT_SSL_VERIFYPEER' => 1]);\n}\n" .
+                    "function built() {\n    \$c = new \\curl();\n    \$o = [];\n    \$o['CURLOPT_SSL_VERIFYPEER'] = 1;\n}\n" .
+                    "function closure() {\n    return function () {\n        \$c = new \\curl();\n" .
+                    "        \$c->setopt(['CURLOPT_SSL_VERIFYPEER' => TRUE]);\n    };\n}\n" .
+                    "function notcurl() {\n    return [new \\curl\\other(), new curl_multi()];\n}\n",
+                [],
+            ],
+            'R3 checking switched off' => [
+                'classes/local/client.php',
+                "\$c->setopt(['CURLOPT_SSL_VERIFYHOST' => 0]);\n" .
+                    "curl_setopt(\$h, CURLOPT_SSL_VERIFYPEER, false);\n" .
+                    "\$o['CURLOPT_SSL_VERIFYPEER'] = 0;\n" .
+                    "stream_context_create(['ssl' => ['verify_peer' => false, 'allow_self_signed' => true]]);\n" .
+                    "\$ok = ['CURLOPT_SSL_VERIFYHOST' => 2, 'verify_peer' => true];\n",
+                ['R3', 'R3', 'R3', 'R3', 'R3'],
+            ],
+            'R3 nested closure verification does not count for the outer client' => [
+                'classes/local/client.php',
+                "function outer() {\n    \$client = new \\curl();\n" .
+                    "    \$unused = function () {\n        \$other = new \\curl();\n" .
+                    "        \$other->setopt(['CURLOPT_SSL_VERIFYPEER' => true]);\n    };\n" .
+                    "    return \$client->get('https://api.example.com/');\n}\n",
+                ['R3'],
+            ],
+            'R3 integer allow_self_signed is unsafe' => [
+                'classes/local/client.php',
+                "stream_context_create(['ssl' => ['allow_self_signed' => 1]]);\n",
+                ['R3'],
+            ],
+            'R3 option read is not an assignment' => [
+                'classes/local/client.php',
+                "function reads() {\n    \$options = ['verify_peer' => true];\n" .
+                    "    return json_encode(\$options['verify_peer'], 0);\n}\n",
+                [],
+            ],
+            'R3 not checked in tests' => ['tests/client_test.php', "\$c = new \\curl();\n", []],
         ];
     }
 
@@ -383,9 +436,9 @@ final class audit_test extends \advanced_testcase {
      */
     public function test_checklist_checks(): void {
         $ids = array_keys(checklist::checks());
-        $this->assertCount(36, $ids);
+        $this->assertCount(37, $ids);
         $this->assertSame(['S0', 'S1'], array_slice($ids, 0, 2));
-        $this->assertSame('R2', end($ids));
+        $this->assertSame('R3', end($ids));
         $this->assertSame('review', checklist::checks()['R1']['group']);
         foreach ($ids as $id) {
             $this->assertNotEmpty(get_string('auditcheck_' . $id, 'local_codechecker'));
