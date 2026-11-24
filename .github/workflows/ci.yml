@@ -111,7 +111,10 @@ jobs:
       - name: Initialise moodle-plugin-ci
         run: |
           PLUGIN_CI_VERSION="${{ matrix.plugin-ci }}"
-          PLUGIN_CI_VERSION="${PLUGIN_CI_VERSION:-^4}"
+          # Pin moodle-plugin-ci to an exact tag so its bundled coding standard
+          # (moodle-cs / PHP_CodeSniffer) does not drift under us between runs.
+          # Bump deliberately, the same as SECURITY_CI_REF above.
+          PLUGIN_CI_VERSION="${PLUGIN_CI_VERSION:-4.5.13}"
           for attempt in 1 2 3; do
               if composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci "$PLUGIN_CI_VERSION"; then
                   break
