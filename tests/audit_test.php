@@ -298,6 +298,25 @@ final class audit_test extends \advanced_testcase {
                     "\$ok = ['CURLOPT_SSL_VERIFYHOST' => 2, 'verify_peer' => true];\n",
                 ['R3', 'R3', 'R3', 'R3', 'R3'],
             ],
+            'R3 nested closure verification does not count for the outer client' => [
+                'classes/local/client.php',
+                "function outer() {\n    \$client = new \\curl();\n" .
+                    "    \$unused = function () {\n        \$other = new \\curl();\n" .
+                    "        \$other->setopt(['CURLOPT_SSL_VERIFYPEER' => true]);\n    };\n" .
+                    "    return \$client->get('https://api.example.com/');\n}\n",
+                ['R3'],
+            ],
+            'R3 integer allow_self_signed is unsafe' => [
+                'classes/local/client.php',
+                "stream_context_create(['ssl' => ['allow_self_signed' => 1]]);\n",
+                ['R3'],
+            ],
+            'R3 option read is not an assignment' => [
+                'classes/local/client.php',
+                "function reads() {\n    \$options = ['verify_peer' => true];\n" .
+                    "    return json_encode(\$options['verify_peer'], 0);\n}\n",
+                [],
+            ],
             'R3 not checked in tests' => ['tests/client_test.php', "\$c = new \\curl();\n", []],
         ];
     }

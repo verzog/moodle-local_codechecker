@@ -31,9 +31,9 @@ use PHP_CodeSniffer\Sniffs\Sniff;
 /**
  * Audit R3: outbound HTTPS verifies certificates.
  *
- * Moodle's curl class sets CURLOPT_SSL_VERIFYPEER to 0 in curl::resetopt(), so a client made with
- * new curl() accepts any certificate unless the caller switches checking on - as core's update
- * checker and plugin installer do. Reports each new curl() whose function (or, outside a function,
+ * Moodle's curl class sets CURLOPT_SSL_VERIFYPEER to 0 in curl::resetopt(), so a client built from
+ * the curl class accepts any certificate unless the caller switches checking on - as core's update
+ * checker and plugin installer do. Reports each curl client whose function (or, outside a function,
  * the rest of the file) never sets CURLOPT_SSL_VERIFYPEER to true or 1 after it - through setopt(),
  * the request options or an options array built first - and anywhere certificate or host-name
  * checking is switched off. Matches moodle-security-ci's R3-curl-no-verify and R3-tls-disabled.
@@ -83,7 +83,8 @@ class CurlTlsSniff implements Sniff {
             }
             $value = $this->option_value($file, $pointer);
             $off = in_array($value, ['false', '0'], true);
-            if (($option === 'allow_self_signed' && $value === 'true') || ($option !== 'allow_self_signed' && $off)) {
+            $on = in_array($value, ['true', '1'], true);
+            if (($option === 'allow_self_signed' && $on) || ($option !== 'allow_self_signed' && $off)) {
                 $file->addWarning(Audit::message('tlsdisabled', $option), $pointer, 'R3');
             }
             return;
@@ -111,6 +112,15 @@ class CurlTlsSniff implements Sniff {
             }
         }
         for ($i = $class + 1; $i <= $end; $i++) {
+            // Skip nested function and closure bodies: verification set in another execution
+            // scope cannot switch checking on for this client.
+            if (
+                in_array($tokens[$i]['code'], [T_FUNCTION, T_CLOSURE, T_FN], true)
+                    && isset($tokens[$i]['scope_closer'])
+            ) {
+                $i = $tokens[$i]['scope_closer'];
+                continue;
+            }
             if (
                 $this->option_name($tokens[$i]) === 'verifypeer'
                     && in_array($this->option_value($file, $i), ['true', '1'], true)
@@ -149,9 +159,18 @@ class CurlTlsSniff implements Sniff {
         $tokens = $file->getTokens();
         $next = $file->findNext(Audit::empty_tokens(), $pointer + 1, null, true);
         if ($next !== false && $tokens[$next]['code'] === T_CLOSE_SQUARE_BRACKET) {
+            // Array-element access ($o['KEY']): only an assignment sets the option. A read used
+            // as an argument ($o['KEY'], ...) must not be treated as a value.
             $next = $file->findNext(Audit::empty_tokens(), $next + 1, null, true);
-        }
-        if ($next === false || !in_array($tokens[$next]['code'], [T_DOUBLE_ARROW, T_EQUAL, T_COMMA], true)) {
+            if ($next === false || $tokens[$next]['code'] !== T_EQUAL) {
+                return null;
+            }
+        } else if ($next !== false && $tokens[$next]['code'] === T_COMMA) {
+            // A bare option name before a comma is an option/value pair only inside curl_setopt().
+            if (!$this->in_curl_setopt_call($file, $pointer)) {
+                return null;
+            }
+        } else if ($next === false || !in_array($tokens[$next]['code'], [T_DOUBLE_ARROW, T_EQUAL], true)) {
             return null;
         }
         $value = $file->findNext(Audit::empty_tokens(), $next + 1, null, true);
@@ -159,5 +178,25 @@ class CurlTlsSniff implements Sniff {
             return null;
         }
         return strtolower($tokens[$value]['content']);
+    }
+
+    /**
+     * Whether the option name token is an argument directly inside a curl_setopt() call.
+     *
+     * @param File $file the file being checked.
+     * @param int $pointer position of the option name.
+     * @return bool true when the innermost enclosing call is curl_setopt().
+     */
+    protected function in_curl_setopt_call(File $file, int $pointer): bool {
+        $tokens = $file->getTokens();
+        if (empty($tokens[$pointer]['nested_parenthesis'])) {
+            return false;
+        }
+        $opens = array_keys($tokens[$pointer]['nested_parenthesis']);
+        $open = (int) end($opens);
+        $name = $file->findPrevious(Audit::empty_tokens(), $open - 1, null, true);
+        return $name !== false
+            && $tokens[$name]['code'] === T_STRING
+            && strtolower($tokens[$name]['content']) === 'curl_setopt';
     }
 }

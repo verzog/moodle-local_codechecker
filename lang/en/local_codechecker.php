@@ -76,7 +76,7 @@ $string['auditmsg_capdataloss'] = '[S13] Capability {$a} looks like a destructiv
 $string['auditmsg_capdefaultgrant'] = '[S14] Capability {$a->cap} carries {$a->risks} but is allowed for archetypes by default. Remove the default, or justify it in a comment in its definition.';
 $string['auditmsg_capnorisk'] = '[S14] Write capability {$a} has no riskbitmask. Add the risks that apply, or confirm that none do.';
 $string['auditmsg_configtable'] = '[R1] Direct access to the {$a} table. Use get_config(), set_config() or unset_config() instead, which also keep the config cache in step.';
-$string['auditmsg_curlnoverify'] = '[R3] new curl() without certificate verification. Moodle\'s curl class does not check certificates by default; set \'CURLOPT_SSL_VERIFYPEER\' => true and \'CURLOPT_SSL_VERIFYHOST\' => 2 with setopt() or in the request options before sending credentials, tokens or personal data.';
+$string['auditmsg_curlnoverify'] = '[R3] curl client without certificate verification. Moodle\'s curl class does not check certificates by default; set \'CURLOPT_SSL_VERIFYPEER\' => true and \'CURLOPT_SSL_VERIFYHOST\' => 2 with setopt() or in the request options before sending credentials, tokens or personal data.';
 $string['auditmsg_debugoutput'] = '[Q7] Debug output {$a}() left in the code. Remove it, or use debugging() or mtrace().';
 $string['auditmsg_deprecated'] = '[{$a->id}] {$a->function}() is a deprecated core API. Use {$a->replacement} instead.';
 $string['auditmsg_externalasset_inject'] = '[S6] JavaScript creates a script or link element. Bundle the code as an AMD module instead of loading it at run time.';
