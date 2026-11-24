@@ -1,3 +1,20 @@
+Changes in version 5.3.7 (20261124) - Certificate verification check
+-------------------------------------------------------
+- New audit check R3 (automatic), in the "Moodle Plugins directory
+  review" group: outbound HTTPS verifies certificates. Moodle's curl
+  class sets CURLOPT_SSL_VERIFYPEER to 0 in curl::resetopt(), so a
+  client made with new curl() accepts any certificate unless the code
+  switches checking on.
+  - Reports a new curl() whose function (or, outside a function, the
+    rest of the file) never sets CURLOPT_SSL_VERIFYPEER to true or 1
+    after it - through setopt(), the request options or an options
+    array built first.
+  - Reports CURLOPT_SSL_VERIFYPEER/VERIFYHOST set to false or 0, and
+    stream contexts with verify_peer/verify_peer_name set to false or
+    allow_self_signed set to true.
+  - Test files are not checked. Matches moodle-security-ci v1.3.0's
+    R3-curl-no-verify and R3-tls-disabled rules line for line.
+
 Changes in version 5.3.6 (20261119) - Plugin directory review checks
 -------------------------------------------------------
 - New audit checklist group, "Moodle Plugins directory review" (R1, R2),

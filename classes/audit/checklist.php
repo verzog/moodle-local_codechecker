@@ -103,6 +103,8 @@ class checklist {
             // Moodle Plugins directory review items, which are not on the Catalyst checklist.
             'R1' => [self::PARTIAL],
             'R2' => [self::PARTIAL],
+            // Not on the Catalyst checklist either: outbound HTTPS verifies certificates.
+            'R3' => [self::AUTO],
         ];
         $groups = ['S' => 'security', 'Q' => 'quality', 'P' => 'performance', 'R' => 'review'];
         $result = [];
