@@ -24,7 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-if ($hassiteconfig) { // Needs this condition or there is error on login page.
+// Needs this condition or there is error on login page.
+if ($hassiteconfig) {
     $ADMIN->add('development', new admin_externalpage(
         'local_codechecker',
         get_string('pluginname', 'local_codechecker'),

@@ -96,7 +96,8 @@ if ($pathlist) {
     $fullpaths = [];
     foreach ($paths as $path) {
         $path = trim(clean_param($path, PARAM_PATH));
-        if (empty($path)) { // No blanks, we don't want to check the whole dirroot.
+        // No blanks, we don't want to check the whole dirroot.
+        if (empty($path)) {
             continue;
         }
         $fullpath = $CFG->dirroot . '/' . trim($path, '/');
