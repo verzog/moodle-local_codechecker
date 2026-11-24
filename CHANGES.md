@@ -1,4 +1,4 @@
-Changes in version 5.3.7 (20261124) - Certificate verification check
+Changes in version 5.3.7 (20261124) - Certificate check, dark mode, coding-standard bump
 -------------------------------------------------------
 - New audit check R3 (automatic), in the "Moodle Plugins directory
   review" group: outbound HTTPS verifies certificates. Moodle's curl
@@ -14,6 +14,16 @@ Changes in version 5.3.7 (20261124) - Certificate verification check
     allow_self_signed set to true.
   - Test files are not checked. Matches moodle-security-ci v1.3.0's
     R3-curl-no-verify and R3-tls-disabled rules line for line.
+- Updated the bundled Moodle coding standard (moodlehq/moodle-cs) from
+  v3.7.0 to v3.9.2, and phpcsstandards/phpcsextra from 1.5.0 to 1.5.1.
+  PHP_CodeSniffer stays on 3.13.6 and the PHP 8.2 floor is kept; brings
+  the new Standards/ layout and the moodle600 ruleset.
+- Dark/colour-mode support for the results and audit output: the result
+  and audit colours now use Moodle Design System tokens with Bootstrap
+  and hex fallbacks, so they stay readable in Moodle 5.3+ colour modes.
+- Fixed the audit test bootstrap after the moodle-cs 3.9 Standards/ move:
+  tests/audit_test.php now requires MoodleUtil from its new
+  Standards/moodle/Util/ location.
 
 Changes in version 5.3.6 (20261119) - Plugin directory review checks
 -------------------------------------------------------
