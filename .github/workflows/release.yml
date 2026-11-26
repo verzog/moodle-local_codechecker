@@ -3,7 +3,9 @@
 # Publishing a GitHub release runs this. It refuses to attach a zip unless:
 #   1. the tag (minus its leading "v") equals $plugin->release in version.php,
 #   2. security-lint reports nothing and OSV finds no known vulnerabilities in lockfiles,
-#   3. tests/release/<tag>.md exists, is fully ticked and says "Result: PASS".
+#   3. tests/release/<tag>.md exists, is fully ticked and says "Result: PASS",
+#   4. a short record ("Record: short") is used only when no path in tests/release/risky-paths.txt
+#      changed since the previous release tag.
 # It then attaches the installable zip, its SHA-256 checksum and the test record to the release.
 # The gates check the code at the tag, so a fix merged to main afterwards is not in it. If a gate
 # fails because of the code or the record, delete the release and its tag (nothing was attached),
@@ -48,6 +50,8 @@ jobs:
         with:
           ref: refs/tags/${{ env.TAG }}
           path: plugin
+          # Full history and tags, so a short record can be compared with the previous release.
+          fetch-depth: 0
 
       - name: Read plugin metadata and check the tag
         id: meta
@@ -84,6 +88,36 @@ jobs:
 
       - name: Gate — release test record
         run: bash security-ci/bin/check-test-record.sh plugin "$TAG"
+
+      - name: Gate — short record only when no risky path changed
+        # The short record skips the hands-on checks, so it is accepted only when nothing those
+        # checks cover changed since the previous release (see TESTING.md, "Releasing").
+        working-directory: plugin
+        run: |
+          RECORD="tests/release/${TAG}.md"
+          if ! grep -qE '^Record:[[:space:]]*short[[:space:]]*$' "$RECORD"; then
+            echo "Full record: the hands-on checks are in it."
+            exit 0
+          fi
+          FULL="Use the full record (tests/release/TEMPLATE.md)."
+          PREV=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' "${TAG}^" 2>/dev/null || true)
+          if [ -z "$PREV" ]; then
+            echo "::error file=${RECORD}::No earlier release tag to compare with. ${FULL}"
+            exit 1
+          fi
+          if [ ! -f tests/release/risky-paths.txt ]; then
+            echo "::error file=${RECORD}::tests/release/risky-paths.txt is missing. ${FULL}"
+            exit 1
+          fi
+          mapfile -t RISKY < <(grep -vE '^[[:space:]]*(#|$)' tests/release/risky-paths.txt)
+          CHANGED=$(git diff --name-only "$PREV" "$TAG" -- "${RISKY[@]}")
+          if [ -n "$CHANGED" ]; then
+            echo "::error file=${RECORD}::${TAG} changes files the hands-on checks cover since ${PREV}. ${FULL}"
+            echo "Changed since ${PREV}:"
+            echo "$CHANGED" | sed 's/^/  /'
+            exit 1
+          fi
+          echo "Short record accepted: no risky path changed since ${PREV}."
 
       - name: Build zip and attach with the test record
         env:
