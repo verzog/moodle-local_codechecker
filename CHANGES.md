@@ -24,6 +24,13 @@ Changes in version 5.3.7 (20261124) - Certificate check, dark mode, coding-stand
 - Fixed the audit test bootstrap after the moodle-cs 3.9 Standards/ move:
   tests/audit_test.php now requires MoodleUtil from its new
   Standards/moodle/Util/ location.
+- Release process (not in the zip): a short release record,
+  tests/release/TEMPLATE-short.md, for releases that change none of the
+  paths in tests/release/risky-paths.list (entry points, classes, output,
+  db/ and bundled libraries). It keeps the automated checks and a short
+  sign-off, and skips the hands-on checks. The "Release zip" workflow
+  accepts it only when no listed path changed since the previous release
+  tag; otherwise the full record is still required.
 
 Changes in version 5.3.6 (20261119) - Plugin directory review checks
 -------------------------------------------------------

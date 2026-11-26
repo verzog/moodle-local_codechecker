@@ -1,7 +1,8 @@
 # Testing plan — local_codechecker
 
 This is the standing test plan. Each release also gets a filled-in record in
-`tests/release/<tag>.md` (copied from `tests/release/TEMPLATE.md`). The "Release zip" workflow
+`tests/release/<tag>.md`, copied from `tests/release/TEMPLATE.md` (the full record) or, for a
+low-risk release, `tests/release/TEMPLATE-short.md` (see "Releasing"). The "Release zip" workflow
 refuses to attach a zip until that record is complete, then attaches it to the GitHub release
 next to the zip.
 
@@ -29,7 +30,7 @@ web request.
 | Every push / PR | OSV known-vulnerability check on `composer.lock` (the bundled `vendor/`) | S20/S21 |
 | Every push / PR | PHPMD unused-code ruleset (blocking) | Q7 |
 | Every push / PR | PHPUnit, including the security tests below, and Behat (`ui.feature`), Moodle 5.0–5.3 | S5/S10, S4/S2, S17, plugin logic, UI journey |
-| Release (tag published) | Tag = `$plugin->release`, security-lint, OSV, test record complete | Releasing untested or unreviewed code |
+| Release (tag published) | Tag = `$plugin->release`, security-lint, OSV, complete record (short only if no risky path changed) | Releasing untested or unreviewed code |
 
 ## Tests in this plugin
 
@@ -62,9 +63,10 @@ row, a new form needs a provider row, and a new adhoc task fails `privacy_test` 
 classified. The manual checks below still test the same risks in a real browser, where the
 tests can't reach (for example the path box itself and the network tab).
 
-## Manual checks every release
+## Manual checks (full record)
 
-These are in the release record:
+These are in the full release record. The short record skips them, so the "Release zip" workflow
+accepts it only when nothing they cover has changed (see "Releasing"):
 
 1. Second read of any change to path handling, access checks or output escaping (S0).
 2. The admin page refuses everyone but site administrators (S1/S2).
@@ -86,9 +88,17 @@ Each release record lists suppressions added since the previous release, so they
 
 ## Releasing
 
-1. On a branch: bump `version.php` (`version`, `release`), add the `CHANGES.md` entry, copy
-   `tests/release/TEMPLATE.md` to `tests/release/vX.Y.Z.md` and work through it. Tick each item,
-   or tick it and write `N/A: <reason>`.
+1. On a branch: bump `version.php` (`version`, `release`), add the `CHANGES.md` entry, and copy
+   a template to `tests/release/vX.Y.Z.md`. Work through it; tick each item, or tick it and write
+   `N/A: <reason>`. Which template:
+   - **Full** (`tests/release/TEMPLATE.md`): when any path in `tests/release/risky-paths.list`
+     changed since the previous release (entry points, `classes/`, output, `db/`, bundled
+     libraries), or when unsure. To see what changed:
+     `git diff --name-only <previous tag>..HEAD -- $(grep -vE '^[[:space:]]*(#|$)' tests/release/risky-paths.list)`
+   - **Short** (`tests/release/TEMPLATE-short.md`): when that command prints nothing, for example
+     a release that only changes sniffs under `standards/`, language strings, styles or docs. It
+     keeps the automated checks and a short sign-off. The workflow runs the same comparison
+     against the previous release tag and refuses the short record if any listed path changed.
 2. Set `Result: PASS`, merge to `main`, and confirm CI is green on that commit.
 3. Publish the GitHub release with tag `vX.Y.Z` from `main`.
 4. Confirm the release has `local_codechecker-vX.Y.Z.zip`, its `.sha256` and the test record.

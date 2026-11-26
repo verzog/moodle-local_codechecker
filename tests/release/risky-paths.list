@@ -1,0 +1,33 @@
+# Paths that need the full release record (tests/release/TEMPLATE.md) when they change.
+#
+# A release that changes none of these since the previous release tag may use the short record
+# (tests/release/TEMPLATE-short.md). The "Release zip" workflow reads this list from the release
+# tag and refuses a short record if any of them changed. They cover what the hands-on checks
+# test: path handling, access checks, forms, output escaping, stored data and bundled libraries.
+#
+# One git pathspec per line; blank lines and lines starting with # are ignored. This file lists
+# itself, so a release that shortens the list needs the full record.
+
+# Entry points, access and form handling.
+index.php
+run.php
+settings.php
+lib.php
+locallib.php
+
+# Output and the classes behind it (runner, report, audit checklist, privacy).
+renderer.php
+classes/
+templates/
+amd/
+
+# Stored data, capabilities and tasks.
+db/
+
+# Bundled third-party code.
+vendor/
+composer.json
+composer.lock
+thirdpartylibs.xml
+
+tests/release/risky-paths.list
