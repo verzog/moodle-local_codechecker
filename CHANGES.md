@@ -26,7 +26,7 @@ Changes in version 5.3.7 (20261124) - Certificate check, dark mode, coding-stand
   Standards/moodle/Util/ location.
 - Release process (not in the zip): a short release record,
   tests/release/TEMPLATE-short.md, for releases that change none of the
-  paths in tests/release/risky-paths.txt (entry points, classes, output,
+  paths in tests/release/risky-paths.list (entry points, classes, output,
   db/ and bundled libraries). It keeps the automated checks and a short
   sign-off, and skips the hands-on checks. The "Release zip" workflow
   accepts it only when no listed path changed since the previous release

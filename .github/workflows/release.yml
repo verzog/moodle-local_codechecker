@@ -4,7 +4,7 @@
 #   1. the tag (minus its leading "v") equals $plugin->release in version.php,
 #   2. security-lint reports nothing and OSV finds no known vulnerabilities in lockfiles,
 #   3. tests/release/<tag>.md exists, is fully ticked and says "Result: PASS",
-#   4. a short record ("Record: short") is used only when no path in tests/release/risky-paths.txt
+#   4. a short record ("Record: short") is used only when no path in tests/release/risky-paths.list
 #      changed since the previous release tag.
 # It then attaches the installable zip, its SHA-256 checksum and the test record to the release.
 # The gates check the code at the tag, so a fix merged to main afterwards is not in it. If a gate
@@ -105,11 +105,11 @@ jobs:
             echo "::error file=${RECORD}::No earlier release tag to compare with. ${FULL}"
             exit 1
           fi
-          if [ ! -f tests/release/risky-paths.txt ]; then
-            echo "::error file=${RECORD}::tests/release/risky-paths.txt is missing. ${FULL}"
+          if [ ! -f tests/release/risky-paths.list ]; then
+            echo "::error file=${RECORD}::tests/release/risky-paths.list is missing. ${FULL}"
             exit 1
           fi
-          mapfile -t RISKY < <(grep -vE '^[[:space:]]*(#|$)' tests/release/risky-paths.txt)
+          mapfile -t RISKY < <(grep -vE '^[[:space:]]*(#|$)' tests/release/risky-paths.list)
           CHANGED=$(git diff --name-only "$PREV" "$TAG" -- "${RISKY[@]}")
           if [ -n "$CHANGED" ]; then
             echo "::error file=${RECORD}::${TAG} changes files the hands-on checks cover since ${PREV}. ${FULL}"

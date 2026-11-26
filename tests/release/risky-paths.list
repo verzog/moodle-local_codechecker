@@ -30,4 +30,4 @@ composer.json
 composer.lock
 thirdpartylibs.xml
 
-tests/release/risky-paths.txt
+tests/release/risky-paths.list

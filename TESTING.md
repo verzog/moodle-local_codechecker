@@ -91,10 +91,10 @@ Each release record lists suppressions added since the previous release, so they
 1. On a branch: bump `version.php` (`version`, `release`), add the `CHANGES.md` entry, and copy
    a template to `tests/release/vX.Y.Z.md`. Work through it; tick each item, or tick it and write
    `N/A: <reason>`. Which template:
-   - **Full** (`tests/release/TEMPLATE.md`): when any path in `tests/release/risky-paths.txt`
+   - **Full** (`tests/release/TEMPLATE.md`): when any path in `tests/release/risky-paths.list`
      changed since the previous release (entry points, `classes/`, output, `db/`, bundled
      libraries), or when unsure. To see what changed:
-     `git diff --name-only <previous tag>..HEAD -- $(grep -vE '^[[:space:]]*(#|$)' tests/release/risky-paths.txt)`
+     `git diff --name-only <previous tag>..HEAD -- $(grep -vE '^[[:space:]]*(#|$)' tests/release/risky-paths.list)`
    - **Short** (`tests/release/TEMPLATE-short.md`): when that command prints nothing, for example
      a release that only changes sniffs under `standards/`, language strings, styles or docs. It
      keeps the automated checks and a short sign-off. The workflow runs the same comparison

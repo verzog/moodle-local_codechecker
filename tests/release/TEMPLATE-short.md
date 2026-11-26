@@ -2,7 +2,7 @@
 
 Record: short
 
-For a release that changes none of the paths in `tests/release/risky-paths.txt` since the previous
+For a release that changes none of the paths in `tests/release/risky-paths.list` since the previous
 release (for example only sniffs under `standards/`, language strings, styles or documentation).
 Copy this file to `tests/release/vX.Y.Z.md` (same name as the release tag), fill it in, and merge it
 with the `version.php` bump. The "Release zip" workflow refuses to build the zip until every box is
@@ -32,9 +32,9 @@ Result: FAIL
 
 ## 2. Scope
 
-- [ ] No path in `tests/release/risky-paths.txt` changed since the previous release. This prints
+- [ ] No path in `tests/release/risky-paths.list` changed since the previous release. This prints
       nothing (the "Release zip" workflow runs the same check):
-      `git diff --name-only <previous tag>..HEAD -- $(grep -vE '^[[:space:]]*(#|$)' tests/release/risky-paths.txt)`
+      `git diff --name-only <previous tag>..HEAD -- $(grep -vE '^[[:space:]]*(#|$)' tests/release/risky-paths.list)`
 - [ ] The `CHANGES.md` entry describes every change since the previous release.
 
 ## 3. Sign-off
